@@ -13,7 +13,9 @@ builder.Services.AddScoped<GenerateCommandHandler>();
 
 using var host = builder.Build();
 
-var rootCommand = CommandLineConfiguration.CreateRootCommand(host.Services);
-var parseResult = rootCommand.Parse(args);
+// Create and configure the CLI
+var cliConfiguration = new CommandLineConfiguration(host.Services);
+var rootCommand = cliConfiguration.CreateRootCommand();
 
+var parseResult = rootCommand.Parse(args);
 return parseResult.Invoke();

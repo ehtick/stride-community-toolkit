@@ -8,6 +8,7 @@ This project follows a modern C# 14/.NET 10 console application pattern that int
 - **System.CommandLine 2.0** for CLI parsing
 - **Microsoft.Extensions.Hosting** for dependency injection
 - **Clean separation of concerns** with command handlers as services
+- **Constructor injection** throughout for testability
 
 ### Pattern: DI-Integrated Command Handlers
 
@@ -15,8 +16,8 @@ Since `System.CommandLine.Hosting` was deprecated, we use a custom integration p
 
 1. **Build the DI container once** at application startup
 2. **Register command handlers as scoped services**
-3. **Extract CLI configuration** to a dedicated `CommandLineConfiguration` class
-4. **Inline action setup** that creates a DI scope per command invocation
+3. **Instantiate CLI configuration** with injected `IServiceProvider`
+4. **Each command creates a DI scope** per invocation
 5. **Handlers receive parsed arguments** and return exit codes
 
 ```csharp
@@ -25,7 +26,10 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddScoped<ScanCommandHandler>();
 using var host = builder.Build();
 
-var rootCommand = CommandLineConfiguration.CreateRootCommand(host.Services);
+// Constructor injection for CLI configuration
+var cliConfiguration = new CommandLineConfiguration(host.Services);
+var rootCommand = cliConfiguration.CreateRootCommand();
+
 var parseResult = rootCommand.Parse(args);
 return parseResult.Invoke();
 ```
@@ -38,7 +42,7 @@ Commands/
   └─ GenerateCommandHandler.cs       # Generates JSON manifest file
 Services/
   └─ ManifestService.cs              # Business logic for manifest generation
-CommandLineConfiguration.cs         # CLI structure and command setup
+CommandLineConfiguration.cs         # CLI structure and command setup (instance-based)
 MetadataScanner.cs                   # Core scanning logic
 Program.cs                           # Entry point (DI setup + execution)
 ```
@@ -72,12 +76,45 @@ The project compiles to `MetadataGenerator.exe` (set via `<AssemblyName>` in the
 
 ## Key Benefits of This Pattern
 
-1. **Testable**: Handlers are injectable services that can be unit tested
+1. **Testable**: All classes use constructor injection and can be unit tested
 2. **Type-safe**: Strong typing throughout with C# 14 primary constructors
 3. **Clean**: Program.cs is minimal (~20 lines); configuration is separate
 4. **Maintainable**: Clear separation between CLI setup, DI, and business logic
 5. **Modern**: Leverages latest C# and .NET patterns
-6. **Extensible**: Easy to add new commands by extending `CommandLineConfiguration`
+6. **Extensible**: Easy to add new commands or dependencies
+7. **Consistent**: Uses constructor injection everywhere (no static utility classes)
+
+## Design Decisions
+
+### Why Instance-Based `CommandLineConfiguration`?
+
+Instead of a static class, we use constructor injection because:
+- **Testability**: Can mock `IServiceProvider` in unit tests
+- **Consistency**: Matches the pattern used by command handlers
+- **Flexibility**: Easy to inject additional dependencies if needed
+- **Best Practice**: Follows SOLID principles and DI conventions
+
+### Why Primary Constructors?
+
+C# 14 primary constructors reduce boilerplate:
+```csharp
+// Before: traditional constructor
+public class CommandLineConfiguration
+{
+    private readonly IServiceProvider _serviceProvider;
+    
+    public CommandLineConfiguration(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
+}
+
+// After: primary constructor (C# 14)
+public class CommandLineConfiguration(IServiceProvider serviceProvider)
+{
+    // serviceProvider is available throughout the class
+}
+```
 
 ## System.CommandLine 2.0 Notes
 
