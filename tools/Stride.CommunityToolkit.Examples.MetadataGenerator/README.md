@@ -15,33 +15,32 @@ Since `System.CommandLine.Hosting` was deprecated, we use a custom integration p
 
 1. **Build the DI container once** at application startup
 2. **Register command handlers as scoped services**
-3. **Inline action setup** that creates a DI scope per command invocation
-4. **Handlers receive parsed arguments** and return exit codes
+3. **Extract CLI configuration** to a dedicated `CommandLineConfiguration` class
+4. **Inline action setup** that creates a DI scope per command invocation
+5. **Handlers receive parsed arguments** and return exit codes
 
 ```csharp
-// Register handlers
+// Program.cs - Clean and minimal
+var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddScoped<ScanCommandHandler>();
+using var host = builder.Build();
 
-// Setup command with DI integration
-scanCommand.SetAction(async (parseResult, cancellationToken) =>
-{
-    using var scope = host.Services.CreateScope();
-    var handler = scope.ServiceProvider.GetRequiredService<ScanCommandHandler>();
-    var path = parseResult.GetValue(pathArgument);
-    return await handler.HandleAsync(path);
-});
+var rootCommand = CommandLineConfiguration.CreateRootCommand(host.Services);
+var parseResult = rootCommand.Parse(args);
+return parseResult.Invoke();
 ```
 
 ### Project Structure
 
 ```
 Commands/
-  ├─ ScanCommandHandler.cs      # Scans examples and displays metadata
-  └─ GenerateCommandHandler.cs  # Generates JSON manifest file
+  ├─ ScanCommandHandler.cs           # Scans examples and displays metadata
+  └─ GenerateCommandHandler.cs       # Generates JSON manifest file
 Services/
-  └─ ManifestService.cs         # Business logic for manifest generation
-MetadataScanner.cs              # Core scanning logic
-Program.cs                      # Entry point with CLI setup
+  └─ ManifestService.cs              # Business logic for manifest generation
+CommandLineConfiguration.cs         # CLI structure and command setup
+MetadataScanner.cs                   # Core scanning logic
+Program.cs                           # Entry point (DI setup + execution)
 ```
 
 ## Commands
@@ -50,6 +49,8 @@ Program.cs                      # Entry point with CLI setup
 Scans example directories and lists discovered metadata.
 
 ```bash
+MetadataGenerator scan "../../examples/code-only"
+# or
 dotnet run -- scan "../../examples/code-only"
 ```
 
@@ -57,19 +58,26 @@ dotnet run -- scan "../../examples/code-only"
 Generates a JSON manifest file from example metadata.
 
 ```bash
+MetadataGenerator generate "../../examples/code-only"
+# or
 dotnet run -- generate "../../examples/code-only"
 ```
 
 ### Default Path
-If no path is provided, defaults to `../../examples/code-only` relative to the tool's location.
+If no path is provided, defaults to `../../../../../examples/code-only` relative to the tool's location.
+
+## Build Output
+
+The project compiles to `MetadataGenerator.exe` (set via `<AssemblyName>` in the `.csproj`), keeping the namespace as `Stride.CommunityToolkit.Examples.MetadataGenerator`.
 
 ## Key Benefits of This Pattern
 
 1. **Testable**: Handlers are injectable services that can be unit tested
 2. **Type-safe**: Strong typing throughout with C# 14 primary constructors
-3. **Clean**: No custom base classes or complex extension methods
-4. **Modern**: Leverages latest C# and .NET patterns
-5. **Maintainable**: Clear separation between CLI setup and business logic
+3. **Clean**: Program.cs is minimal (~20 lines); configuration is separate
+4. **Maintainable**: Clear separation between CLI setup, DI, and business logic
+5. **Modern**: Leverages latest C# and .NET patterns
+6. **Extensible**: Easy to add new commands by extending `CommandLineConfiguration`
 
 ## System.CommandLine 2.0 Notes
 
@@ -77,3 +85,4 @@ If no path is provided, defaults to `../../examples/code-only` relative to the t
 - `Argument<T>` requires explicit name parameter
 - `ParseResult.GetValue()` for type-safe value extraction
 - `ParseResult.Invoke()` for synchronous command execution
+- DI scope created per command invocation for proper resource management
