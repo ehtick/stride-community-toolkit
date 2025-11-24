@@ -12,6 +12,8 @@ public class GenerateCommandHandler(ManifestService manifestService, ILogger<Gen
 {
     public Task<int> HandleAsync(DirectoryInfo examplesRootPath)
     {
+        //Debugger.Launch();
+
         logger.LogInformation("Executing generate command...");
         logger.LogInformation("Examples root path: {Path}", examplesRootPath.FullName);
 
