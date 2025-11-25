@@ -14,6 +14,9 @@ builder.Services.AddSerilog((services, configuration) =>
         .Enrich.FromLogContext();
 });
 
+builder.Services.AddScoped<ExampleScanner>();
+builder.Services.AddScoped<MetadataParser>();
+builder.Services.AddScoped<ManifestWriter>();
 builder.Services.AddScoped<ManifestService>();
 
 using var host = builder.Build();

@@ -1,37 +1,26 @@
 using Microsoft.Extensions.Logging;
-using System.Text;
-using System.Text.Json;
-using YamlDotNet.Core;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace Stride.CommunityToolkit.Examples.MetadataGenerator.Services;
 
-public class ManifestService(ILogger<ManifestService> logger)
+/// <summary>
+/// Orchestrates the scanning, parsing, and generation of example metadata manifests.
+/// </summary>
+public class ManifestService(
+    ILogger<ManifestService> logger,
+    ExampleScanner exampleScanner,
+    MetadataParser metadataParser,
+    ManifestWriter manifestWriter)
 {
-    private readonly ILogger<ManifestService> _logger = logger;
-
-    public Task<int> GenerateManifestAsync(DirectoryInfo? examplesRootPath)
-    {
-        if (examplesRootPath is null)
-        {
-            _logger.LogError("Path not provided");
-
-            return Task.FromResult(0);
-        }
-
-        _logger.LogInformation("Executing generate command...");
-        _logger.LogInformation("Examples root path: {Path}", examplesRootPath.FullName);
-        _logger.LogInformation("Generating manifest...");
-
-        return Task.FromResult(0);
-    }
-
+    /// <summary>
+    /// Scans the examples directory and collects metadata from all Program.cs files.
+    /// </summary>
+    /// <param name="examplesRootPath">The root directory containing example projects.</param>
+    /// <returns>A collection of parsed example metadata.</returns>
     public async Task<List<ExampleMetadata>> ScanExamplesAsync(DirectoryInfo? examplesRootPath)
     {
-        _logger.LogInformation("Executing scan command...");
-        _logger.LogInformation("Examples root path: {Path}, exists: {Exists}",
-            examplesRootPath.FullName, examplesRootPath.Exists);
+        ArgumentNullException.ThrowIfNull(examplesRootPath);
+
+        logger.LogInformation("Starting example scan in: {Path}", examplesRootPath.FullName);
 
         if (!examplesRootPath.Exists)
         {
@@ -40,46 +29,51 @@ public class ManifestService(ILogger<ManifestService> logger)
             return [];
         }
 
-        var examplesRoot = examplesRootPath.FullName;
         var examples = new List<ExampleMetadata>();
-        var programFiles = Directory.GetFiles(examplesRoot, "Program.cs", SearchOption.AllDirectories);
-
-        _logger.LogInformation("Scanning {length} Program.cs files.", programFiles.Length);
+        var programFiles = exampleScanner.FindProgramFiles(examplesRootPath);
 
         foreach (var programFile in programFiles)
         {
-            _logger.LogInformation("Processing {exampleName}", Path.GetFileName(Path.GetDirectoryName(programFile)));
+            var projectName = exampleScanner.GetProjectName(programFile);
+            logger.LogInformation("Processing example: {ProjectName}", projectName);
 
             try
             {
-                var metadata = await ExtractMetadata(programFile, examplesRoot);
+                var metadata = await metadataParser.ParseMetadataAsync(programFile, examplesRootPath.FullName);
 
-                if (metadata != null)
+                if (metadata is not null)
                 {
                     examples.Add(metadata);
-                    _logger.LogInformation(" ✅ {metadata}", metadata.ProjectName);
+                    logger.LogInformation("".PadRight(20, ' ') + "✅ Parsed metadata, title: {ProjectName}", metadata.Title);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"  ✗ {Path.GetFileName(Path.GetDirectoryName(programFile))}: {ex.Message}");
+                logger.LogWarning(ex, "Failed to process example: {ProjectName}", projectName);
             }
         }
 
-        Console.WriteLine($"\nFound {examples.Count} examples with metadata.");
+        logger.LogInformation("Scan completed. Found {Count} examples with metadata", examples.Count);
 
         return examples;
     }
 
-    public async Task<int> ScanAndGenerateAsync(DirectoryInfo examplesRootPath, string outputPath)
+    /// <summary>
+    /// Scans examples and generates a JSON manifest file.
+    /// </summary>
+    /// <param name="examplesRootPath">The root directory containing example projects.</param>
+    /// <param name="outputPath">The path where the manifest JSON file should be written.</param>
+    /// <returns>Exit code: 0 for success, 1 for failure.</returns>
+    public async Task<int> ScanAndGenerateManifestAsync(DirectoryInfo? examplesRootPath, string outputPath)
     {
-        _logger.LogInformation("Executing scan command...");
-        _logger.LogInformation("Examples root path: {Path}, exists: {Exists}",
-            examplesRootPath.FullName, examplesRootPath.Exists);
+        ArgumentNullException.ThrowIfNull(examplesRootPath);
+        ArgumentException.ThrowIfNullOrWhiteSpace(outputPath);
+
+        logger.LogInformation("Starting manifest generation for: {Path}", examplesRootPath.FullName);
 
         if (!examplesRootPath.Exists)
         {
-            logger.LogError("Directory does not exist: {Path}", examplesRootPath.FullName);
+            logger.LogError("Examples directory does not exist: {Path}", examplesRootPath.FullName);
 
             return 1;
         }
@@ -88,96 +82,15 @@ public class ManifestService(ILogger<ManifestService> logger)
 
         if (examples.Count > 0)
         {
-            await WriteManifestAsync(examples, outputPath);
+            await manifestWriter.WriteManifestAsync(examples, outputPath);
 
-            Console.WriteLine($"Manifest written to: {outputPath}");
+            logger.LogInformation("Manifest generation completed successfully");
+
+            return 0;
         }
-        else
-        {
-            Console.WriteLine("No manifest written - no examples with metadata found.");
-        }
+
+        logger.LogWarning("No examples with metadata found. No manifest written");
 
         return 0;
-    }
-
-
-
-    private async Task WriteManifestAsync(List<ExampleMetadata> examples, string outputPath)
-    {
-        var outputDir = Path.GetDirectoryName(outputPath);
-
-        if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
-        {
-            Directory.CreateDirectory(outputDir);
-        }
-
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-        };
-
-        var json = JsonSerializer.Serialize(examples, options);
-
-        await File.WriteAllTextAsync(outputPath, json, Encoding.UTF8);
-    }
-
-    private async Task<ExampleMetadata?> ExtractMetadata(string programFile, string examplesRoot)
-    {
-        var content = await File.ReadAllTextAsync(programFile);
-        var match = MetadataScanner.YamlBlockRegex().Match(content);
-
-        if (!match.Success) return null;
-
-        var yamlContent = match.Groups[1].Value.Trim();
-
-        try
-        {
-            var deserializer = new DeserializerBuilder()
-                .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                .IgnoreUnmatchedProperties()
-                .Build();
-
-            var metadata = deserializer.Deserialize<ExampleMetadata>(yamlContent);
-
-            if (metadata != null)
-            {
-                var projectDir = Path.GetDirectoryName(programFile);
-                metadata.ProjectName = Path.GetFileName(projectDir);
-                metadata.ProjectPath = Path.GetRelativePath(examplesRoot, programFile);
-            }
-
-            return metadata;
-        }
-        catch (YamlException ex)
-        {
-            var errorMessage = new StringBuilder();
-            errorMessage.AppendLine($"Failed to parse YAML metadata in {Path.GetFileName(programFile)}");
-            errorMessage.AppendLine($"Error at Line {ex.End.Line}, Column {ex.End.Column}");
-            errorMessage.AppendLine();
-            errorMessage.AppendLine("YAML Content:");
-            errorMessage.AppendLine("---");
-            errorMessage.AppendLine(yamlContent);
-            errorMessage.AppendLine("---");
-            errorMessage.AppendLine();
-            errorMessage.AppendLine($"Error: {ex.Message}");
-
-            throw new InvalidOperationException(errorMessage.ToString(), ex);
-        }
-        catch (Exception ex)
-        {
-            var errorMessage = new StringBuilder();
-            errorMessage.AppendLine($"Unexpected error while processing {Path.GetFileName(programFile)}");
-            errorMessage.AppendLine();
-            errorMessage.AppendLine("YAML Content:");
-            errorMessage.AppendLine("---");
-            errorMessage.AppendLine(yamlContent);
-            errorMessage.AppendLine("---");
-            errorMessage.AppendLine();
-            errorMessage.AppendLine($"Error: {ex.Message}");
-
-            throw new InvalidOperationException(errorMessage.ToString(), ex);
-        }
     }
 }

@@ -56,15 +56,23 @@ public class CommandLineConfiguration(IServiceProvider serviceProvider)
 
     private Command CreateGenerateCommand(Argument<DirectoryInfo> pathArgument)
     {
+        var outputOption = new Option<string>("--output", "-o")
+        {
+            Description = "The output path for the generated manifest JSON file.",
+            Required = true,
+        };
+
         var generateCommand = new Command("generate", "Generates the metadata JSON manifest.");
         generateCommand.Arguments.Add(pathArgument);
+        generateCommand.Options.Add(outputOption);
         generateCommand.SetAction(async (parseResult, cancellationToken) =>
         {
             using var scope = serviceProvider.CreateScope();
             var service = scope.ServiceProvider.GetRequiredService<ManifestService>();
             var path = parseResult.GetValue(pathArgument);
+            var outputPath = parseResult.GetValue(outputOption) ?? "examples-manifest.json";
 
-            return await service.GenerateManifestAsync(path);
+            return await service.ScanAndGenerateManifestAsync(path, outputPath);
         });
 
         return generateCommand;
