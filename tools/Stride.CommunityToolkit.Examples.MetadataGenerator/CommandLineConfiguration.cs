@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Stride.CommunityToolkit.Examples.MetadataGenerator.Commands;
+using Stride.CommunityToolkit.Examples.MetadataGenerator.Services;
 using System.CommandLine;
 
 namespace Stride.CommunityToolkit.Examples.MetadataGenerator;
@@ -32,7 +32,7 @@ public class CommandLineConfiguration(IServiceProvider serviceProvider)
         return new Argument<DirectoryInfo>("examples-root-path")
         {
             Description = "The root path of the examples to scan.",
-            DefaultValueFactory = _ => new DirectoryInfo(Path.Combine("..", "..", "..", "..", "..", "examples", "code-only"))
+            DefaultValueFactory = _ => new DirectoryInfo(Path.Combine("..", "..", "examples", "code-only"))
         };
     }
 
@@ -43,10 +43,12 @@ public class CommandLineConfiguration(IServiceProvider serviceProvider)
         scanCommand.SetAction(async (parseResult, cancellationToken) =>
         {
             using var scope = serviceProvider.CreateScope();
-            var handler = scope.ServiceProvider.GetRequiredService<ScanCommandHandler>();
+            var service = scope.ServiceProvider.GetRequiredService<ManifestService>();
             var path = parseResult.GetValue(pathArgument);
 
-            return await handler.HandleAsync(path);
+            await service.ScanExamplesAsync(path);
+
+            return 0;
         });
 
         return scanCommand;
@@ -59,10 +61,10 @@ public class CommandLineConfiguration(IServiceProvider serviceProvider)
         generateCommand.SetAction(async (parseResult, cancellationToken) =>
         {
             using var scope = serviceProvider.CreateScope();
-            var handler = scope.ServiceProvider.GetRequiredService<GenerateCommandHandler>();
+            var service = scope.ServiceProvider.GetRequiredService<ManifestService>();
             var path = parseResult.GetValue(pathArgument);
 
-            return await handler.HandleAsync(path);
+            return await service.GenerateManifestAsync(path);
         });
 
         return generateCommand;
