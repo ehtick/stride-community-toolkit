@@ -23,7 +23,7 @@ Since `System.CommandLine.Hosting` was deprecated, we use a custom integration p
 ```csharp
 // Program.cs - Clean and minimal
 var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddScoped<ScanCommandHandler>();
+builder.Services.AddScoped<ManifestService>();
 using var host = builder.Build();
 
 // Constructor injection for CLI configuration
@@ -37,14 +37,11 @@ return parseResult.Invoke();
 ### Project Structure
 
 ```
-Commands/
-  ├─ ScanCommandHandler.cs           # Scans examples and displays metadata
-  └─ GenerateCommandHandler.cs       # Generates JSON manifest file
 Services/
-  └─ ManifestService.cs              # Business logic for manifest generation
+  └─ ManifestService.cs             # Business logic for manifest generation
 CommandLineConfiguration.cs         # CLI structure and command setup (instance-based)
-MetadataScanner.cs                   # Core scanning logic
-Program.cs                           # Entry point (DI setup + execution)
+MetadataScanner.cs                  # Core scanning logic
+Program.cs                          # Entry point (DI setup + execution)
 ```
 
 ## Commands
@@ -93,28 +90,6 @@ Instead of a static class, we use constructor injection because:
 - **Consistency**: Matches the pattern used by command handlers
 - **Flexibility**: Easy to inject additional dependencies if needed
 - **Best Practice**: Follows SOLID principles and DI conventions
-
-### Why Primary Constructors?
-
-C# 14 primary constructors reduce boilerplate:
-```csharp
-// Before: traditional constructor
-public class CommandLineConfiguration
-{
-    private readonly IServiceProvider _serviceProvider;
-    
-    public CommandLineConfiguration(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
-}
-
-// After: primary constructor (C# 14)
-public class CommandLineConfiguration(IServiceProvider serviceProvider)
-{
-    // serviceProvider is available throughout the class
-}
-```
 
 ## System.CommandLine 2.0 Notes
 
