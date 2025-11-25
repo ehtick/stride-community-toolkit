@@ -59,6 +59,7 @@ public class CommandLineConfiguration(IServiceProvider serviceProvider)
         var outputOption = new Option<string>("--output", "-o")
         {
             Description = "The output path for the generated manifest JSON file.",
+            DefaultValueFactory = _ => "examples-manifest.json",
             Required = true,
         };
 
