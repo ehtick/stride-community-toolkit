@@ -35,7 +35,7 @@
         <Message Text="Generating examples metadata manifest..." Importance="high" />
         <Message Text="Executing: dotnet run --project &quot;$(GeneratorProject)&quot; --configuration $(Configuration) -- generate &quot;$(ExamplesRoot)&quot; --output &quot;$(ManifestOutput)&quot;" Importance="high" />
 
-        <Exec Command="dotnet run --project &quot;$(GeneratorProject)&quot; --configuration $(Configuration) -- generate &quot;$(ExamplesRoot)&quot; --output &quot;$(ManifestOutput)&quot;" />
+        <Exec Command="dotnet run --project &quot;$(GeneratorProject)&quot; --configuration $(Configuration) -- generate &quot;$(ExamplesRoot)&quot; --output &quot;$(ManifestOutput)&quot;" ContinueOnError="WarnAndContinue" />
 
         <!-- Include generated manifest in output -->
         <ItemGroup>
