@@ -33,9 +33,9 @@
         </PropertyGroup>
 
         <Message Text="Generating examples metadata manifest..." Importance="high" />
-        <Message Text="Executing: dotnet run --project &quot;$(GeneratorProject)&quot; --configuration $(Configuration) -- &quot;$(ExamplesRoot)&quot; &quot;$(ManifestOutput)&quot;" Importance="high" />
+        <Message Text="Executing: dotnet run --project &quot;$(GeneratorProject)&quot; --configuration $(Configuration) -- generate &quot;$(ExamplesRoot)&quot; --output &quot;$(ManifestOutput)&quot;" Importance="high" />
 
-        <!-- Temporarily disabled -->
+        <Exec Command="dotnet run --project &quot;$(GeneratorProject)&quot; --configuration $(Configuration) -- generate &quot;$(ExamplesRoot)&quot; --output &quot;$(ManifestOutput)&quot;" />
 
         <!-- Include generated manifest in output -->
         <ItemGroup>
