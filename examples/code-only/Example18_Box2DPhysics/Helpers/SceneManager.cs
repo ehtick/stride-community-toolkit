@@ -1,7 +1,7 @@
 using Box2D.NET;
 using Example.Common;
-using Example18_Box2DPhysics.Physics;
 using Example18_Box2DPhysics.Box2DPhysics;
+using Example18_Box2DPhysics.Physics;
 using Stride.CommunityToolkit.Engine;
 using Stride.CommunityToolkit.Rendering.ProceduralModels;
 using Stride.Core.Mathematics;
@@ -369,7 +369,7 @@ public class SceneManager
 
         // Apply upward impulse with some randomness
         var impulseDirection = new Vector2(
-            Random.Shared.NextSingle() * 2f - 1f, // -1 to 1
+            Random.Shared.NextSingle() * 10f - 1f, // -1 to 1
             GameConfig.ImpulseStrength
         );
 
