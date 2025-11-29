@@ -38,7 +38,7 @@ public static class Procedural3DModelBuilder
             PrimitiveModelType.Sphere => size is null ? new SphereProceduralModel() : new() { Radius = size.Value.X },
             PrimitiveModelType.Teapot => size is null ? new TeapotProceduralModel() : new() { Size = size.Value.X },
             PrimitiveModelType.Torus => size is null ? new TorusProceduralModel() : new() { Radius = size.Value.X, Thickness = size.Value.Y },
-            PrimitiveModelType.TriangularPrism => size is null ? new TriangularPrismProceduralModel() : new TriangularPrismProceduralModel() { Size = size is null ? Vector3.One : new(size.Value.X, size.Value.Y, size.Value.Z) },
+            PrimitiveModelType.TriangularPrism => size is null ? new TriangularPrismProceduralModel() : new() { Size = size.Value },
             _ => throw new InvalidOperationException($"Unsupported PrimitiveModelType: {type}")
         };
 }

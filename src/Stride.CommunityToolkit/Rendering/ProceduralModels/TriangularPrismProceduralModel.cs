@@ -7,7 +7,7 @@ namespace Stride.CommunityToolkit.Rendering.ProceduralModels;
 /// Procedural model that generates a triangular prism.
 /// </summary>
 /// <remarks>
-/// The triangular cross-section lies in the X/Y plane and the prism extends along the Z axis (depth).
+/// The triangular cross-section lies on the X/Y plane and the prism extends along the Z axis (depth).
 /// X specifies the base width of the triangle (across -X..+X), Y specifies the triangle height (across -Y..+Y),
 /// and Z specifies the prism depth. The triangle is centered around Y = 0 with the apex at Y = +Y/2 and the base at Y = -Y/2.
 /// Texture coordinates are generated per-face using a simple 0..1 quad mapping and scaled by <see cref="PrimitiveProceduralModelBase.UvScale"/>.
@@ -51,11 +51,9 @@ public class TriangularPrismProceduralModel : PrimitiveProceduralModelBase
 
         var textureCoordinate = new Vector2[4];
         for (var i = 0; i < 4; i++)
-        {
             textureCoordinate[i] = _textureCoordinates[i] * new Vector2(uScale, vScale);
-        }
 
-        // Half extents
+        // Half-extents
         var halfBase = size.X * 0.5f;    // along X
         var halfHeight = size.Y * 0.5f;  // along Y (triangle apex-to-base)
         var halfDepth = size.Z * 0.5f;   // along Z
