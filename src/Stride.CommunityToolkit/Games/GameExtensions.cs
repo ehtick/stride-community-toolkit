@@ -29,9 +29,7 @@ public static class GameExtensions
         var model = modelBase.Generate(game.Services);
 
         if (options.Material != null)
-        {
             model.Materials.Add(options.Material);
-        }
 
         var entity = new Entity(options.EntityName) { new ModelComponent(model) { RenderGroup = options.RenderGroup } };
 
@@ -54,9 +52,7 @@ public static class GameExtensions
         var model = modelBase.Generate(game.Services);
 
         if (options.Material != null)
-        {
             model.Materials.Add(options.Material);
-        }
 
         var entity = new Entity(options.EntityName) { new ModelComponent(model) { RenderGroup = options.RenderGroup } };
 
@@ -92,7 +88,7 @@ public static class GameExtensions
     /// <summary>
     /// Retrieves the current frames per second (FPS) rate of the running game.
     /// </summary>
-    /// <param name="game">The <see cref="IGame"/> instance from which to obtain the FPS rate.</param>
+    /// <param name="game">The <see cref="IGame"/> instance from which to get the FPS rate.</param>
     /// <returns>The current FPS rate of the game.</returns>
     public static float FPS(this IGame game) => game.UpdateTime.FramePerSecond;
 
@@ -149,9 +145,7 @@ public static class GameExtensions
         ArgumentNullException.ThrowIfNull(game);
 
         if (game is not GameBase gameBase)
-        {
             throw new ArgumentException($"The provided game instance must inherit from {nameof(GameBase)} in order to exit properly.", nameof(game));
-        }
 
         gameBase.Exit();
     }
