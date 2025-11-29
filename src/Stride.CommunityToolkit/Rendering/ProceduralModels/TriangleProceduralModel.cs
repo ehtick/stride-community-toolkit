@@ -18,9 +18,7 @@ public class TriangleProceduralModel : PrimitiveProceduralModelBase
 
     /// <inheritdoc />
     protected override GeometricMeshData<VertexPositionNormalTexture> CreatePrimitiveMeshData()
-    {
-        return New(Size, UvScale.X, UvScale.Y);
-    }
+        => New(Size, UvScale.X, UvScale.Y);
 
     /// <summary>
     /// Creates (or retrieves from cache) a triangle mesh of the given size and UV scale.
@@ -30,14 +28,12 @@ public class TriangleProceduralModel : PrimitiveProceduralModelBase
         // Create a cache key that includes all parameters that affect the mesh
         var key = new Vector2(size.X * uScale, size.Y * vScale);
 
-        if (toLeftHanded) key *= -1; // Distinguish handedness in cache
+        if (toLeftHanded) key *= -1; // Distinguish handedness in a cache
 
-        if (!_meshCache.TryGetValue(key, out var mesh))
-        {
-            // Create and cache the mesh if not found
-            mesh = CreateMesh(size, uScale, vScale, toLeftHanded);
-            _meshCache[key] = mesh;
-        }
+        if (_meshCache.TryGetValue(key, out var mesh)) return mesh;
+
+        mesh = CreateMesh(size, uScale, vScale, toLeftHanded);
+        _meshCache[key] = mesh;
 
         return mesh;
     }
@@ -55,11 +51,9 @@ public class TriangleProceduralModel : PrimitiveProceduralModelBase
         var uvScale = new Vector2(uScale, vScale);
 
         for (var i = 0; i < 3; i++)
-        {
             textureCoordinates[i] = _textureCoordinates[i] * uvScale;
-        }
 
-        // Three vertices for triangle
+        // Three vertices for a triangle
         vertices[0] = new VertexPositionNormalTexture(new Vector3(0, size.Y, 0), Vector3.UnitZ, textureCoordinates[0]);
         vertices[1] = new VertexPositionNormalTexture(new Vector3(-size.X, -size.Y, 0), Vector3.UnitZ, textureCoordinates[1]);
         vertices[2] = new VertexPositionNormalTexture(new Vector3(size.X, -size.Y, 0), Vector3.UnitZ, textureCoordinates[2]);

@@ -4,7 +4,7 @@ using Stride.Rendering.ProceduralModels;
 namespace Stride.CommunityToolkit.Rendering.ProceduralModels;
 
 /// <summary>
-/// Procedurally generates a filled 2D circle mesh oriented in the XY plane.
+/// Procedurally generates a filled 2D circle mesh oriented on the XY plane.
 /// Meshes are cached per (radius, tessellation, UV scale, handedness) for reuse.
 /// </summary>
 public class CircleProceduralModel : PrimitiveProceduralModelBase
@@ -21,7 +21,7 @@ public class CircleProceduralModel : PrimitiveProceduralModelBase
     private static readonly Dictionary<(float Radius, int Tessellation, float UScale, float VScale, bool IsLeftHanded), GeometricMeshData<VertexPositionNormalTexture>> _meshCache = [];
 
     /// <summary>
-    /// Creates mesh data for the current radius, tessellation and UV scale settings.
+    /// Creates mesh data for the current radius, tessellation, and UV scale settings.
     /// </summary>
     protected override GeometricMeshData<VertexPositionNormalTexture> CreatePrimitiveMeshData() => New(Radius, Tessellation, UvScale.X, UvScale.Y);
 
@@ -38,11 +38,11 @@ public class CircleProceduralModel : PrimitiveProceduralModelBase
     {
         var cacheKey = (radius, tessellation, uScale, vScale, toLeftHanded);
 
-        if (!_meshCache.TryGetValue(cacheKey, out var mesh))
-        {
-            mesh = CreateMesh(radius, tessellation, uScale, vScale, toLeftHanded);
-            _meshCache[cacheKey] = mesh;
-        }
+        if (_meshCache.TryGetValue(cacheKey, out var mesh))
+            return mesh;
+
+        mesh = CreateMesh(radius, tessellation, uScale, vScale, toLeftHanded);
+        _meshCache[cacheKey] = mesh;
 
         return mesh;
     }
@@ -54,30 +54,30 @@ public class CircleProceduralModel : PrimitiveProceduralModelBase
     public static GeometricMeshData<VertexPositionNormalTexture> CreateMesh(float radius = 0.5f, int tessellation = 32, float uScale = 1.0f, float vScale = 1.0f, bool toLeftHanded = false)
     {
         // Use stack allocation for small arrays
-        Span<VertexPositionNormalTexture> vertices = tessellation <= 128
+        var vertices = tessellation <= 128
             ? stackalloc VertexPositionNormalTexture[tessellation + 1]
             : new VertexPositionNormalTexture[tessellation + 1];
 
-        Span<int> indices = tessellation <= 128
+        var indices = tessellation <= 128
             ? stackalloc int[tessellation * 3]
             : new int[tessellation * 3];
 
-        Vector3 normal = Vector3.UnitZ;
+        var normal = Vector3.UnitZ;
 
         // Center vertex
         vertices[0] = new VertexPositionNormalTexture(Vector3.Zero, normal, new Vector2(0.5f, 0.5f) * new Vector2(uScale, vScale));
 
-        // Create perimeter vertices - FLIPPED X and Y coordinates
-        for (int i = 0; i < tessellation; i++)
+        // Create perimeter-vertices-FLIPPED X and Y coordinates
+        for (var i = 0; i < tessellation; i++)
         {
-            float angle = (float)(i * 2.0 * Math.PI / tessellation);
+            var angle = (float)(i * 2.0 * Math.PI / tessellation);
 
             // The key change: swap X and Y coordinates and negate one coordinate
             // to match the orientation of your Rectangle model
-            float x = radius * (float)Math.Cos(angle);
-            float y = radius * (float)Math.Sin(angle);
+            var x = radius * (float)Math.Cos(angle);
+            var y = radius * (float)Math.Sin(angle);
 
-            Vector2 texCoord = new Vector2(
+            var texCoord = new Vector2(
                 0.5f + ((float)Math.Cos(angle) * 0.5f),
                 0.5f + ((float)Math.Sin(angle) * 0.5f)
             );
@@ -90,7 +90,7 @@ public class CircleProceduralModel : PrimitiveProceduralModelBase
         }
 
         // Create triangles - REVERSE the winding order to flip the circle
-        for (int i = 0; i < tessellation; i++)
+        for (var i = 0; i < tessellation; i++)
         {
             indices[i * 3] = 0; // Center vertex
 

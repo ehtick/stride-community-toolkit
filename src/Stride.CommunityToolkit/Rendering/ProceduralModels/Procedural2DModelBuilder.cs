@@ -29,12 +29,12 @@ public static class Procedural2DModelBuilder
         => type switch
         {
             Primitive2DModelType.Capsule => size is null ? new Capsule2DProceduralModel() : new() { Radius = size.Value.X / 2, TotalHeight = size.Value.Y },
-            Primitive2DModelType.Circle => new CircleProceduralModel() { Radius = size is null ? 0.5f : size.Value.X },
+            Primitive2DModelType.Circle => new CircleProceduralModel() { Radius = size?.X ?? 0.5f },
             //Primitive2DModelType.Polygon => size is null ? new PolygonProceduralModel() : new() { Radius = size.Value.X, Sides = (int)size.Value.Y },
             //Primitive2DModelType.Quad => size is null ? new QuadProceduralModel() : new() { Size = size.Value.XY() },
-            Primitive2DModelType.Rectangle => new RectangleProceduralModel() { Size = size is null ? new(2, 1) : size.Value },
+            Primitive2DModelType.Rectangle => new RectangleProceduralModel() { Size = size ?? new(2, 1) },
             Primitive2DModelType.Square => new RectangleProceduralModel() { Size = size is null ? new(1, 1) : new(size.Value.X, size.Value.X) },
-            Primitive2DModelType.Triangle => new TriangleProceduralModel() { Size = size is null ? new(1, 1) : size.Value },
+            Primitive2DModelType.Triangle => new TriangleProceduralModel() { Size = size ?? new(1, 1) },
             _ => throw new InvalidOperationException($"Unsupported Primitive2DModelType: {type}")
         };
 }

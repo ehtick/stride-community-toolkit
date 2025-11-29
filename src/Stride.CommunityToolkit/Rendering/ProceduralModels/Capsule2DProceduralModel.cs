@@ -45,11 +45,11 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
     {
         var cacheKey = (height, radius, tessellation, uScale, vScale, toLeftHanded);
 
-        if (!_meshCache.TryGetValue(cacheKey, out var mesh))
-        {
-            mesh = CreateMesh(height, radius, tessellation, uScale, vScale, toLeftHanded);
-            _meshCache[cacheKey] = mesh;
-        }
+        if (_meshCache.TryGetValue(cacheKey, out var mesh))
+            return mesh;
+
+        mesh = CreateMesh(height, radius, tessellation, uScale, vScale, toLeftHanded);
+        _meshCache[cacheKey] = mesh;
 
         return mesh;
     }
@@ -64,14 +64,14 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
         tessellation = Math.Max(4, tessellation);
 
         // Make sure the height is greater than twice the radius to ensure we have a rectangular section
-        float totalHeight = Math.Max(height, radius * 2.01f); // Add a small buffer to ensure rectangle exists
+        var totalHeight = Math.Max(height, radius * 2.01f); // Add a small buffer to ensure the rectangle exists
 
         // Calculate the rectangular part height
-        float rectHeight = Math.Max(0.01f, totalHeight - 2 * radius);
+        var rectHeight = Math.Max(0.01f, totalHeight - 2 * radius);
 
-        // Calculate total number of vertices and indices
-        int vertexCount = (tessellation + 1) * 2 + 2; // Two semicircles plus two center points
-        int indexCount = tessellation * 6; // Two semicircles with triangles
+        // Calculate the total number of vertices and indices
+        var vertexCount = (tessellation + 1) * 2 + 2; // Two semicircles plus two center points
+        var indexCount = tessellation * 6; // Two semicircles with triangles
 
         if (rectHeight > 0)
         {
@@ -80,29 +80,29 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
         }
 
         // Use stack allocation for reasonable sizes
-        Span<VertexPositionNormalTexture> vertices = vertexCount <= 128
+        var vertices = vertexCount <= 128
             ? stackalloc VertexPositionNormalTexture[vertexCount]
             : new VertexPositionNormalTexture[vertexCount];
 
-        Span<int> indices = indexCount <= 384
+        var indices = indexCount <= 384
             ? stackalloc int[indexCount]
             : new int[indexCount];
 
-        Vector3 normal = Vector3.UnitZ;
+        var normal = Vector3.UnitZ;
 
         // Calculate center points of circles
-        float halfRectHeight = rectHeight / 2;
-        Vector3 topCircleCenter = new Vector3(0, halfRectHeight, 0); // Removed "+ radius"
-        Vector3 bottomCircleCenter = new Vector3(0, -halfRectHeight, 0); // Removed "- radius"
+        var halfRectHeight = rectHeight / 2;
+        var topCircleCenter = new Vector3(0, halfRectHeight, 0); // Removed "+ radius"
+        var bottomCircleCenter = new Vector3(0, -halfRectHeight, 0); // Removed "- radius"
 
         // Set UV scale
         var uvScale = new Vector2(uScale, vScale);
 
-        int currentVertex = 0;
+        var currentVertex = 0;
 
         // ===== TOP SEMICIRCLE =====
         // Top center point
-        int topCenterIndex = currentVertex;
+        var topCenterIndex = currentVertex;
         vertices[currentVertex++] = new VertexPositionNormalTexture(
             topCircleCenter,
             normal,
@@ -110,13 +110,13 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
         );
 
         // Top semicircle perimeter
-        for (int i = 0; i <= tessellation; i++)
+        for (var i = 0; i <= tessellation; i++)
         {
-            float angle = i * MathF.PI / tessellation;
-            float x = radius * MathF.Cos(angle);
-            float y = radius * MathF.Sin(angle);
+            var angle = i * MathF.PI / tessellation;
+            var x = radius * MathF.Cos(angle);
+            var y = radius * MathF.Sin(angle);
 
-            Vector2 texCoord = new Vector2(
+            var texCoord = new Vector2(
                 0.5f + (MathF.Cos(angle) * 0.5f),
                 0.75f + (MathF.Sin(angle) * 0.25f) // Adjusted UV to match with rectangle
             );
@@ -129,7 +129,7 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
         }
 
         // ===== RECTANGLE MIDDLE PART =====
-        int rectStartIndex = currentVertex;
+        var rectStartIndex = currentVertex;
         if (rectHeight > 0)
         {
             // Define rect vertices - same winding as top semicircle
@@ -164,7 +164,7 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
 
         // ===== BOTTOM SEMICIRCLE =====
         // Bottom center point
-        int bottomCenterIndex = currentVertex;
+        var bottomCenterIndex = currentVertex;
         vertices[currentVertex++] = new VertexPositionNormalTexture(
             bottomCircleCenter,
             normal,
@@ -172,14 +172,13 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
         );
 
         // Bottom semicircle perimeter
-        int bottomStartIndex = currentVertex;
-        for (int i = 0; i <= tessellation; i++)
+        for (var i = 0; i <= tessellation; i++)
         {
-            float angle = MathF.PI + i * MathF.PI / tessellation;
-            float x = radius * MathF.Cos(angle);
-            float y = radius * MathF.Sin(angle);
+            var angle = MathF.PI + i * MathF.PI / tessellation;
+            var x = radius * MathF.Cos(angle);
+            var y = radius * MathF.Sin(angle);
 
-            Vector2 texCoord = new Vector2(
+            var texCoord = new Vector2(
                 0.5f + (MathF.Cos(angle) * 0.5f),
                 0.25f + (MathF.Sin(angle) * 0.25f) // Adjusted UV to match with rectangle
             );
@@ -192,10 +191,10 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
         }
 
         // ===== INDEXING =====
-        int currentIndex = 0;
+        var currentIndex = 0;
 
         // Top semicircle triangles
-        for (int i = 0; i < tessellation; i++)
+        for (var i = 0; i < tessellation; i++)
         {
             indices[currentIndex++] = topCenterIndex;
             indices[currentIndex++] = topCenterIndex + i + 2;
@@ -217,22 +216,18 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
         }
 
         // Bottom semicircle triangles
-        for (int i = 0; i < tessellation; i++)
+        for (var i = 0; i < tessellation; i++)
         {
             indices[currentIndex++] = bottomCenterIndex;
             indices[currentIndex++] = bottomCenterIndex + i + 2;
             indices[currentIndex++] = bottomCenterIndex + i + 1;
         }
 
-        // Flip winding for left-handed coordinate system
+        // Flip winding for a left-handed coordinate system
         if (toLeftHanded)
         {
-            for (int i = 0; i < indexCount; i += 3)
-            {
-                int temp = indices[i + 1];
-                indices[i + 1] = indices[i + 2];
-                indices[i + 2] = temp;
-            }
+            for (var i = 0; i < indexCount; i += 3)
+                (indices[i + 1], indices[i + 2]) = (indices[i + 2], indices[i + 1]);
         }
 
         return new GeometricMeshData<VertexPositionNormalTexture>(vertices.ToArray(), indices.ToArray(), toLeftHanded) { Name = "Capsule" };
