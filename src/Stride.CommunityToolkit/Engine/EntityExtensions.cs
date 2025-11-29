@@ -21,7 +21,7 @@ public static partial class EntityExtensions
     /// <param name="displayPosition">The position on the screen where the camera controls will be displayed. Defaults to <see cref="DisplayPosition.TopRight"/>.</param>
     /// <remarks>
     /// The camera entity can be moved using W, A, S, D, Q and E, arrow keys, a gamepad's left stick
-    /// or by dragging/scaling using multi-touch. Rotation is achieved using the Numpad, the mouse while holding
+    /// or by dragging/scaling using multitouch. Rotation is achieved using the Numpad, the mouse while holding
     /// the right mouse button, a gamepad's right stick, or by dragging using single-touch.
     /// </remarks>
     public static void Add3DCameraController(this Entity entity, DisplayPosition displayPosition = DisplayPosition.TopRight)
@@ -111,19 +111,15 @@ public static partial class EntityExtensions
 
         var result = entity.OfType<T>().FirstOrDefault();
 
-        if (result is null)
+        if (result is not null) return result;
+
+        var children = entity.GetChildren();
+
+        foreach (var child in children)
         {
-            var children = entity.GetChildren();
+            result = child.GetComponentInChildren<T>();
 
-            foreach (var child in children)
-            {
-                result = child.GetComponentInChildren<T>();
-
-                if (result != null)
-                {
-                    return result;
-                }
-            }
+            if (result != null) return result;
         }
 
         return result;
@@ -173,17 +169,11 @@ public static partial class EntityExtensions
 
         foreach (var entity in entities)
         {
-            if (entity.Name == name)
-            {
-                return entity;
-            }
+            if (entity.Name == name) return entity;
 
             var child = entity.FindChild(name);
 
-            if (child != null && child.Name == name)
-            {
-                return child;
-            }
+            if (child != null && child.Name == name) return child;
         }
 
         return null;
@@ -194,7 +184,7 @@ public static partial class EntityExtensions
     /// </summary>
     /// <typeparam name="T">The type of component to retrieve.</typeparam>
     /// <param name="entity">The entity from which to retrieve the component.</param>
-    /// <param name="result">When this method returns, contains the first component of type</param>
+    /// <param name="result">When this method returns, contains the first component of a type</param>
     /// <returns>
     /// <c>true</c> if a component of type <typeparamref name="T"/> is found in the entity;
     /// otherwise, <c>false</c>.
@@ -216,9 +206,7 @@ public static partial class EntityExtensions
     public static Vector3 WorldPosition(this Entity entity, bool updateTransforms = true)
     {
         if (updateTransforms)
-        {
             entity.Transform.UpdateWorldMatrix();
-        }
 
         return entity.Transform.WorldMatrix.TranslationVector;
     }
