@@ -6,15 +6,15 @@ namespace Stride.CommunityToolkit.Engine;
 /// Base (non-physics) option set used when creating primitive entities (2D or 3D).
 /// </summary>
 /// <remarks>
-/// This abstraction intentionally contains only rendering / identification related settings.
-/// Physics specific configuration is layered in derived option types such as
+/// This abstraction intentionally contains only rendering / identification-related settings.
+/// Physics-specific configuration is layered in derived option types such as
 /// <c>Bepu2DPhysicsOptions</c>, <c>Bepu3DPhysicsOptions</c>, <c>Bullet2DPhysicsOptions</c>, and <c>Bullet3DPhysicsOptions</c>.
 /// Additional shared options can be added here as they become engine‑agnostic.
 /// </remarks>
 public abstract class PrimitiveEntityOptions
 {
     /// <summary>
-    /// Gets or sets the (optional) human friendly name for the entity to aid scene inspection or debugging.
+    /// Gets or sets the (optional) human-friendly name for the entity to aid scene inspection or debugging.
     /// If <c>null</c>, a name may be assigned by higher level factory helpers or remain empty.
     /// </summary>
     public string? EntityName { get; set; }
