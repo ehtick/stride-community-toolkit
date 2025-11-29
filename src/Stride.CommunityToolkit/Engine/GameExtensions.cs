@@ -207,9 +207,7 @@ public static class GameExtensions
 
                 // Remove all identified features
                 foreach (var feature in featuresToRemove)
-                {
                     meshRenderFeature.RenderFeatures.Remove(feature);
-                }
             }
         }
     }
@@ -254,9 +252,7 @@ public static class GameExtensions
         var cameras = game.SceneSystem.GraphicsCompositor.Cameras;
 
         if (cameras.Count == 0)
-        {
             throw new InvalidOperationException(NoCameraSlotMessage);
-        }
 
         var cameraSlot = cameras[0];
 
@@ -412,9 +408,7 @@ public static class GameExtensions
             entity.Scene = game.SceneSystem.SceneInstance.RootScene;
 
             if (showLightGizmo)
-            {
                 entity.AddLightDirectionalGizmo(game.GraphicsDevice);
-            }
         }
     }
 
