@@ -326,8 +326,6 @@ public class Basic2DCameraController : SyncScript
         else
         {
             Entity.Transform.Position += movement;
-
-            Console.WriteLine($"Camera Position: {Entity.Transform.Position}");
         }
     }
 
