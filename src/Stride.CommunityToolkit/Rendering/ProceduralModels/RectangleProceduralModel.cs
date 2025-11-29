@@ -14,7 +14,9 @@ public class RectangleProceduralModel : PrimitiveProceduralModelBase
     public Vector2 Size { get; set; } = Vector2.One;
 
     private static readonly Vector2[] _textureCoordinates = [new(1, 0), new(1, 1), new(0, 1), new(0, 0)];
-    private static readonly Dictionary<Vector2, GeometricMeshData<VertexPositionNormalTexture>> _meshCache = [];
+    private static readonly Dictionary<MeshCacheKey, GeometricMeshData<VertexPositionNormalTexture>> _meshCache = [];
+
+    private readonly record struct MeshCacheKey(Vector2 Size, float UScale, float VScale, bool ToLeftHanded);
 
     /// <inheritdoc />
     protected override GeometricMeshData<VertexPositionNormalTexture> CreatePrimitiveMeshData()
@@ -23,12 +25,14 @@ public class RectangleProceduralModel : PrimitiveProceduralModelBase
     /// <summary>
     /// Creates (or retrieves from cache) a rectangle mesh of the given size and UV scale.
     /// </summary>
+    /// <param name="size">The size of the rectangle.</param>
+    /// <param name="uScale">The U coordinate scale factor.</param>
+    /// <param name="vScale">The V coordinate scale factor.</param>
+    /// <param name="toLeftHanded">Whether to convert the mesh to left-handed coordinates.</param>
+    /// <returns>A geometric mesh data instance representing the rectangle.</returns>
     public static GeometricMeshData<VertexPositionNormalTexture> New(Vector2 size, float uScale = 1.0f, float vScale = 1.0f, bool toLeftHanded = false)
     {
-        // Create a cache key that includes all parameters that affect the mesh
-        var key = new Vector2(size.X * uScale, size.Y * vScale);
-
-        if (toLeftHanded) key *= -1; // Distinguish handedness in a cache
+        var key = new MeshCacheKey(size, uScale, vScale, toLeftHanded);
 
         if (_meshCache.TryGetValue(key, out var mesh)) return mesh;
 
@@ -41,6 +45,11 @@ public class RectangleProceduralModel : PrimitiveProceduralModelBase
     /// <summary>
     /// Builds a new rectangle mesh (no caching).
     /// </summary>
+    /// <param name="size">The size of the rectangle.</param>
+    /// <param name="uScale">The U coordinate scale factor.</param>
+    /// <param name="vScale">The V coordinate scale factor.</param>
+    /// <param name="toLeftHanded">Whether to convert the mesh to left-handed coordinates.</param>
+    /// <returns>A geometric mesh data instance representing the rectangle.</returns>
     public static GeometricMeshData<VertexPositionNormalTexture> CreateMesh(Vector2 size, float uScale = 1.0f, float vScale = 1.0f, bool toLeftHanded = false)
     {
         Span<VertexPositionNormalTexture> vertices = stackalloc VertexPositionNormalTexture[4];
