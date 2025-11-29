@@ -158,7 +158,7 @@ public static class GameExtensions
     }
 
     /// <summary>
-    /// Creates a material with flat colors that aren't affected by lighting, ideal for 2D rendering.
+    /// Creates a material with flat colors that lighting doesn't affect, ideal for 2D rendering.
     /// </summary>
     /// <param name="game">The game instance used to access the graphics device.</param>
     /// <param name="color">The color of the material. Uses white if not specified.</param>
@@ -445,7 +445,7 @@ public static class GameExtensions
     }
 
     /// <summary>
-    /// Adds a profiler to the game, which can be toggled on/off with Left Shift + Left Ctrl + P, and provides other keyboard shortcuts.
+    /// Adds a profiler to the game, which can be toggled on/off with Left Shift + Left Ctrl + P and provides other keyboard shortcuts.
     /// Changing the filtering mode with F1, altering the sorting mode with F2, navigating result pages with F3 and F4,
     /// and adjusting the refresh interval with the plus and minus keys.
     /// </summary>
@@ -454,7 +454,7 @@ public static class GameExtensions
     /// <returns>The entity to which the <see cref="GameProfiler"/> script was attached.</returns>
     /// <remarks>
     /// This extension method creates an entity and attaches a <see cref="GameProfiler"/> script to it, enabling in-game profiling.
-    /// The profiler's behaviour can be interacted with using various keyboard shortcuts as described in the <see cref="GameProfiler"/> class.
+    /// The profiler's behavior can be interacted with using various keyboard shortcuts as described in the <see cref="GameProfiler"/> class.
     /// </remarks>
     public static Entity AddProfiler(this Game game, string? entityName = "Game Profiler")
     {
