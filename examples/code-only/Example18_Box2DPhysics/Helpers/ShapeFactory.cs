@@ -10,10 +10,8 @@ namespace Example18_Box2DPhysics.Helpers;
 /// <summary>
 /// Factory class to create 2D shapes for the Box2D simulation with Box2D.NET
 /// </summary>
-public class ShapeFactory
+public class ShapeFactory(Game game, Scene scene)
 {
-    private readonly Game _game;
-    private readonly Scene _scene;
     private readonly List<Shape2DModel> _shapes =
     [
         new() { Type = Primitive2DModelType.Square, Color = Color.Green, Size = GameConfig.BoxSize },
@@ -23,12 +21,6 @@ public class ShapeFactory
         new() { Type = Primitive2DModelType.Triangle, Color = Color.Purple, Size = GameConfig.BoxSize },
         new() { Type = Primitive2DModelType.Capsule, Color = Color.Blue, Size = GameConfig.CapsuleSize }
     ];
-
-    public ShapeFactory(Game game, Scene scene)
-    {
-        _game = game;
-        _scene = scene;
-    }
 
     public Shape2DModel? GetShapeModel(Primitive2DModelType type)
         => _shapes.Find(x => x.Type == type);
@@ -46,31 +38,31 @@ public class ShapeFactory
             (byte)(actualColor.B * 0.5f),
             actualColor.A);
 
-        var entity = _game.Create2DPrimitive(shape.Type, new()
+        var entity = game.Create2DPrimitive(shape.Type, new()
         {
             Size = shape.Size,
-            Material = _game.CreateFlatMaterial(darkerColor)
+            Material = game.CreateFlatMaterial(darkerColor)
         });
 
         entity.Name = name ?? $"{shape.Type}-{GameConfig.ShapeName}";
         entity.Transform.Position = position.HasValue ? (Vector3)position : GetRandomPosition();
 
-        // Define polygon vertices based on shape type
-        Vector2[] polygonVertices = shape.Type switch
+        // Define polygon vertices based on a shape type
+        var polygonVertices = shape.Type switch
         {
-            Primitive2DModelType.Square or Primitive2DModelType.Rectangle => new[]
-            {
-            new Vector2(-shape.Size.X * 0.5f, -shape.Size.Y * 0.5f), // Bottom-left
-            new Vector2(shape.Size.X * 0.5f, -shape.Size.Y * 0.5f),  // Bottom-right
-            new Vector2(shape.Size.X * 0.5f, shape.Size.Y * 0.5f),   // Top-right
-            new Vector2(-shape.Size.X * 0.5f, shape.Size.Y * 0.5f)   // Top-left
-        },
-            Primitive2DModelType.Triangle => new[]
-            {
-            new Vector2(0, shape.Size.Y * 0.5f),              // Top
-            new Vector2(-shape.Size.X * 0.5f, -shape.Size.Y * 0.5f), // Bottom-left
-            new Vector2(shape.Size.X * 0.5f, -shape.Size.Y * 0.5f)   // Bottom-right
-        },
+            Primitive2DModelType.Square or Primitive2DModelType.Rectangle =>
+            [
+                new Vector2(-shape.Size.X * 0.5f, -shape.Size.Y * 0.5f), // Bottom-left
+                new Vector2(shape.Size.X * 0.5f, -shape.Size.Y * 0.5f), // Bottom-right
+                new Vector2(shape.Size.X * 0.5f, shape.Size.Y * 0.5f), // Top-right
+                new Vector2(-shape.Size.X * 0.5f, shape.Size.Y * 0.5f) // Top-left
+            ],
+            Primitive2DModelType.Triangle =>
+            [
+                new Vector2(0, shape.Size.Y * 0.5f), // Top
+                new Vector2(-shape.Size.X * 0.5f, -shape.Size.Y * 0.5f), // Bottom-left
+                new Vector2(shape.Size.X * 0.5f, -shape.Size.Y * 0.5f) // Bottom-right
+            ],
             _ => Array.Empty<Vector2>() // For circles, use existing logic
         };
 
@@ -87,7 +79,7 @@ public class ShapeFactory
             PolygonVertices = polygonVertices
         });
 
-        entity.Scene = _scene;
+        entity.Scene = scene;
 
         return entity;
     }
