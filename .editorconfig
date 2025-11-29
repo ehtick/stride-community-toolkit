@@ -22,6 +22,10 @@ csharp_style_expression_bodied_operators                          = true : sugge
 csharp_style_expression_bodied_properties                         = true : suggestion
 csharp_style_expression_bodied_indexers                           = true : suggestion
 csharp_style_expression_bodied_accessors                          = true : suggestion
+
+[{Program.cs}]
+resharper_access_to_disposed_closure_highlighting                 = none
+resharper_separate_local_functions_with_jump_statement_highlighting = none
 #dotnet_sort_system_directives_first = true
 
 # name all constant fields using PascalCase
