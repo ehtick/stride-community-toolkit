@@ -3,6 +3,7 @@ using Stride.Rendering;
 using Stride.Rendering.Background;
 using Stride.Rendering.Compositing;
 using Stride.Rendering.Images;
+using Stride.Rendering.Lights;
 using Stride.Rendering.Materials;
 using Stride.Rendering.Sprites;
 
@@ -35,7 +36,7 @@ public static class GraphicsCompositorHelper2D
         var postProcessingEffects = enablePostEffects
             ? new PostProcessingEffects
             {
-                ColorTransforms = { Transforms = { new ToneMap() } },
+                ColorTransforms = { Transforms = { new ToneMap() { Enabled = false } } },
             }
             : null;
 
@@ -53,24 +54,34 @@ public static class GraphicsCompositorHelper2D
             PostEffects = postProcessingEffects,
         };
 
+        var forwardLighting = new ForwardLightingRenderFeature
+            {
+                LightRenderers =
+                {
+                    new LightAmbientRenderer(),
+                    new LightDirectionalGroupRenderer(),
+                    new LightPointGroupRenderer(),
+                    new LightSpotGroupRenderer(),
+                },
+            };
+
         var cameraSlot = new SceneCameraSlot();
 
-        if (camera != null)
-        {
-            camera.Slot = cameraSlot.ToSlotId();
-        }
+        camera?.Slot = cameraSlot.ToSlotId();
 
         return new GraphicsCompositor
         {
             Cameras = { cameraSlot },
             RenderStages = { opaqueRenderStage, transparentRenderStage },
-            RenderFeatures = {
+            RenderFeatures =
+            {
                 new MeshRenderFeature
                 {
                     RenderFeatures =
                     {
                         new TransformRenderFeature(),
                         new MaterialRenderFeature(),
+                        forwardLighting
                     },
                     RenderStageSelectors =
                     {
@@ -81,7 +92,11 @@ public static class GraphicsCompositorHelper2D
                             TransparentRenderStage = transparentRenderStage,
                             RenderGroup = groupMask,
                         },
-                    }
+                    },
+                    PipelineProcessors =
+                    {
+                        new MeshPipelineProcessor { TransparentRenderStage = transparentRenderStage },
+                    },
                 },
                 new SpriteRenderFeature
                 {
