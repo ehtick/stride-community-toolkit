@@ -4,7 +4,6 @@ using Example18_Box2DPhysics.Helpers;
 using Stride.CommunityToolkit.Engine;
 using Stride.Core.Mathematics;
 using Stride.Engine;
-using Stride.Games;
 
 // Example 18: Box2D Physics Integration
 // This example demonstrates how to integrate Box2D.NET with Stride game engine
@@ -16,17 +15,17 @@ using Stride.Games;
 Box2DSimulation? simulation = null;
 SceneManager? sceneManager = null;
 
-using var game = new Game();
+using var app = new Game();
 
-game.Run(start: Start, update: Update);
+app.Run(start: Start, update: Update);
 
-void Start(Scene scene)
+void Start(Game game)
 {
     // Configure the game window
     game.Window.AllowUserResizing = true;
     game.Window.Title = "Box2D Physics Example - Stride Community Toolkit";
 
-    // Setup 2D scene with camera and controls
+    // Set up a 2D scene with camera and controls
     game.SetupBase2D(clearColor: new Color(0.2f));
     game.Add2DCameraController();
     //game.AddGraphicsCompositor();
@@ -40,23 +39,25 @@ void Start(Scene scene)
 
     // Initialize the Box2D physics simulation
     simulation = new Box2DSimulation();
-    ConfigurePhysicsWorld(simulation);
+    ConfigurePhysicsWorld();
 
     // Initialize the demo manager to handle all demo logic
-    sceneManager = new SceneManager(game, scene, simulation);
+    sceneManager = new SceneManager(game, game.SceneSystem.SceneInstance.RootScene, simulation);
     sceneManager.Initialize();
 }
 
-void Update(Scene scene, GameTime gameTime)
+void Update(Game game)
 {
+    var time = game.UpdateTime;
+
     // Update physics simulation
-    simulation?.Update(gameTime.Elapsed);
+    simulation?.Update(time.Elapsed);
 
     // Update demo manager (handles input and UI)
-    sceneManager?.Update(gameTime);
+    sceneManager?.Update(time);
 }
 
-void ConfigurePhysicsWorld(Box2DSimulation simulation)
+void ConfigurePhysicsWorld()
 {
     // Configure gravity (negative Y is down)
     simulation.Gravity = new Vector2(0f, GameConfig.Gravity);
