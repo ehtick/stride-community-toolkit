@@ -103,14 +103,10 @@ public class Basic2DCameraController : SyncScript
         if (!Input.HasKeyboard) return;
 
         if (Input.IsKeyPressed(Keys.F2))
-        {
             _showInstructions = !_showInstructions;
-        }
 
         if (Input.IsKeyPressed(Keys.F3))
-        {
             _instructions?.ChangeStartPosition();
-        }
     }
 
     /// <summary>
@@ -130,11 +126,11 @@ public class Basic2DCameraController : SyncScript
         if (Input.IsKeyDown(Keys.Right))
             moveDirection.X++;
 
-        // Normalize the moveDirection to ensure consistent movement speed, for example when moving diagonally
+        // Normalize the moveDirection to ensure consistent movement speed, for example, when moving diagonally
         if (moveDirection.LengthSquared() > 1)
             moveDirection.Normalize();
 
-        // Apply speed factor when shift is held
+        // Apply a speed factor when shift is held
         if (Input.IsKeyDown(Keys.LeftShift) || Input.IsKeyDown(Keys.RightShift))
             moveDirection *= SpeedFactor;
 
@@ -143,7 +139,7 @@ public class Basic2DCameraController : SyncScript
     }
 
     /// <summary>
-    /// Moves camera when mouse is near screen edges (RTS-style panning).
+    /// Moves camera when the mouse is near screen edges (RTS-style panning).
     /// </summary>
     private void ProcessScreenEdgeMovement()
     {
@@ -158,10 +154,10 @@ public class Basic2DCameraController : SyncScript
         var screenMouseX = mousePosition.X * screenWidth;
         var screenMouseY = mousePosition.Y * screenHeight;
 
-        // We could lock mouse inside the window
+        // We could lock the mouse inside the window
         //Input.Mouse.LockPosition();
 
-        // Check if the mouse is within the screen bounds. We are detecting -1 because mouse keeps detected outside of the screen
+        // Check if the mouse is within the screen bounds. We are detecting -1 because the mouse keeps detected outside the screen
         if (screenMouseX > 0 && screenMouseX < screenWidth - 1 && screenMouseY > 0 && screenMouseY < screenHeight - 1)
         {
             // Check if the mouse is near the edges of the screen and update moveDirection accordingly
