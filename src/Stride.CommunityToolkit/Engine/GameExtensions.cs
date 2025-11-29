@@ -102,7 +102,7 @@ public static class GameExtensions
     /// <param name="clearColor">The color used to clear the screen. Defaults to <see cref="Color.CornflowerBlue"/> if not specified.</param>
     public static void SetupBase2D(this Game game, Color? clearColor = null)
     {
-        game.Add2DGraphicsCompositor(clearColor);
+        game.Add2DGraphicsCompositor(clearColor).AddUIStage();
         game.Add2DCamera();
     }
 
