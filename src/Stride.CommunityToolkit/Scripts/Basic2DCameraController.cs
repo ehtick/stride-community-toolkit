@@ -139,7 +139,7 @@ public class Basic2DCameraController : SyncScript
     /// <remarks>
     /// When enabled, camera movement is smoothed using lerp based on <see cref="SmoothingSpeed"/>.
     /// </remarks>
-    public bool EnableSmoothing { get; set; } = true;
+    public bool EnableSmoothing { get; set; } = false;
 
     /// <summary>
     /// Gets or sets the speed of smooth movement interpolation.
