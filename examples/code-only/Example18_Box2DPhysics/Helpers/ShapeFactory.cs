@@ -21,11 +21,7 @@ public class ShapeFactory
         new() { Type = Primitive2DModelType.Circle, Color = Color.Red, Size = GameConfig.BoxSize / 2 },
         new() { Type = Primitive2DModelType.Circle, Color = Color.Gold, Size = GameConfig.BoxSize },
         new() { Type = Primitive2DModelType.Triangle, Color = Color.Purple, Size = GameConfig.BoxSize },
-        new()
-        {
-            Type = Primitive2DModelType.Capsule, Color = Color.Blue,
-            Size = new Vector2(GameConfig.BoxSize.X, GameConfig.BoxSize.Y * 2)
-        }
+        new() { Type = Primitive2DModelType.Capsule, Color = Color.Blue, Size = GameConfig.CapsuleSize }
     ];
 
     public ShapeFactory(Game game, Scene scene)
