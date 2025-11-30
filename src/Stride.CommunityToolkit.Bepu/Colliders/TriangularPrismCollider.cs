@@ -47,7 +47,9 @@ public static class TriangularPrismCollider
             validatedSize = prismModel.Size;
         }
         else
+        {
             validatedSize = size.Value;
+        }
 
         var meshData = TriangularPrismProceduralModel.New(validatedSize);
 
