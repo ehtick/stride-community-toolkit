@@ -57,8 +57,8 @@ game.Run(start: (Scene rootScene) =>
 /*
 ---example-metadata
 title:
-  en: Basic2D Scene (Capsule)
-  cs: Základní 2D scéna (Kapsle)
+  en: Basic2D Scene (Capsule) - Bullet Physics
+  cs: Základní 2D scéna (Kapsle) - Bullet Physics
 level: Getting Started
 category: Shapes
 complexity: 1
