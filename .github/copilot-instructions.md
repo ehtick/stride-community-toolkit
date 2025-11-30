@@ -35,9 +35,13 @@ These repository instructions guide GitHub Copilot (and similar AI assistants) t
   - **Stride.CommunityToolkit.Bullet**: Bullet physics integration (legacy / transitional, pending deprecation)
   - **Stride.CommunityToolkit.DebugShapes**: Debug visualization tools
   - **Stride.CommunityToolkit.ImGui**: ImGui integration
+  - **Stride.CommunityToolkit.ImGuiNet**: ImGui.NET bindings and helpers
+  - **Stride.CommunityToolkit.Linux**: Linux-specific features
   - **Stride.CommunityToolkit.Skyboxes**: Skybox utilities
   - **Stride.CommunityToolkit.Windows**: Windows-specific features
 - `examples/`: Code-only and snippet example projects (C#, F#, VB)
+- `benchmarks/`: BenchmarkDotNet-based performance tests (primary suite)
+- `tests/`: Unit and regression test projects (xUnit, targeting net10.0)
 - `docs/`: DocFX sources (manuals, API reference, contributing)
 - `.github/`: GitHub workflows, release metadata, automation, and this instruction file
 
@@ -99,7 +103,7 @@ void Start(Scene rootScene)
 - Physics: Do not combine Bepu and Bullet physics components on the same entity.
 - Shaders (*.sdsl): After adding, removing, or changing shader properties, manually regenerate the associated `*.cs` file (remind contributors when shaders are touched).
 - Experimental / provisional APIs: consider marking with an `[Experimental]` attribute (future) or note in the XML summary.
-- Tests: Keep deterministic; avoid relying on real-time frame counts.
+- Tests: Use xUnit under `tests/` targeting net10.0; keep deterministic and avoid relying on real-time frame counts.
 
 ## Documentation guidelines
 - Docs are generated with DocFX from `docs/`.
