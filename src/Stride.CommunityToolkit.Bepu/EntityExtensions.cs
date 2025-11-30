@@ -8,12 +8,19 @@ namespace Stride.CommunityToolkit.Bepu;
 
 /// <summary>
 /// Provides extension methods for the <see cref="Entity"/> class to simplify adding Bepu 2D and 3D physics components.
+/// These methods automatically configure appropriate collider shapes based on primitive types and allow customization through options.
 /// </summary>
 public static class EntityExtensions
 {
     /// <summary>
-    /// Adds Bepu 2D physics components to the entity.
+    /// Adds Bepu 2D physics components to the entity with an appropriate collider shape based on the primitive type.
     /// </summary>
+    /// <param name="entity">The entity to add physics components to.</param>
+    /// <param name="type">The type of 2D primitive shape for the collider.</param>
+    /// <param name="options">Optional physics configuration including the body component, size, depth, and whether to include a collider. If null, default options are used.</param>
+    /// <returns>The entity with the Bepu 2D physics components added.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="entity"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when an unsupported <see cref="Primitive2DModelType"/> is specified.</exception>
     public static Entity AddBepu2DPhysics(this Entity entity, Primitive2DModelType type, Bepu2DPhysicsOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(entity);
@@ -41,8 +48,14 @@ public static class EntityExtensions
     }
 
     /// <summary>
-    /// Adds Bepu 3D physics components to the entity.
+    /// Adds Bepu 3D physics components to the entity with an appropriate collider shape based on the primitive type.
     /// </summary>
+    /// <param name="entity">The entity to add physics components to.</param>
+    /// <param name="type">The type of 3D primitive shape for the collider.</param>
+    /// <param name="options">Optional physics configuration including the body component, size, and whether to include a collider. If null, default options are used.</param>
+    /// <returns>The entity with the Bepu 3D physics components added.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="entity"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the entity does not have a <see cref="ModelComponent"/> with a valid model, or when an unsupported <see cref="PrimitiveModelType"/> is specified.</exception>
     public static Entity AddBepuPhysics(this Entity entity, PrimitiveModelType type, Bepu3DPhysicsOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(entity);
@@ -74,6 +87,14 @@ public static class EntityExtensions
         return entity;
     }
 
+    /// <summary>
+    /// Creates a 2D collider shape based on the specified primitive type.
+    /// </summary>
+    /// <param name="type">The type of 2D primitive shape.</param>
+    /// <param name="size">Optional size for the collider. For most shapes, X represents width and Y represents height.</param>
+    /// <param name="depth">The depth (Z-axis) of the 2D shape in 3D space.</param>
+    /// <returns>A <see cref="ColliderBase"/> configured for the specified primitive type.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when an unsupported <see cref="Primitive2DModelType"/> is specified.</exception>
     private static ColliderBase Get2DColliderShape(Primitive2DModelType type, Vector2? size = null, float depth = 0)
     {
         return type switch
@@ -98,6 +119,13 @@ public static class EntityExtensions
         };
     }
 
+    /// <summary>
+    /// Creates a 3D collider shape based on the specified primitive type.
+    /// </summary>
+    /// <param name="type">The type of 3D primitive shape.</param>
+    /// <param name="size">Optional size for the collider. Interpretation varies by shape type (e.g., radius, dimensions).</param>
+    /// <returns>A <see cref="ColliderBase"/> configured for the specified primitive type.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when an unsupported <see cref="PrimitiveModelType"/> is specified.</exception>
     private static ColliderBase Get3DColliderShape(PrimitiveModelType type, Vector3? size = null)
         => type switch
         {
