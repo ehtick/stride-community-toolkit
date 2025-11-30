@@ -27,27 +27,9 @@ public static class EntityExtensions
             return entity;
         }
 
-        //if (type == Primitive2DModelType.Circle)
-        //{
-        //    var model = entity.Get<ModelComponent>()?.Model;
-
-        //    if (model is null)
-        //    {
-        //        throw new InvalidOperationException("Entity must have a ModelComponent with a valid model to add Bepu physics.");
-        //    }
-
-        //    entity.Remove<ModelComponent>();
-
-        //    var childEntity = new Entity("Child") { new ModelComponent(model) { RenderGroup = options.RenderGroup } };
-
-        //    childEntity.Transform.Rotation = Quaternion.RotationAxis(Vector3.UnitX, MathUtil.DegreesToRadians(90));
-
-        //    entity.AddChild(childEntity);
-        //}
-
         var colliderShape = Get2DColliderShape(type, options.Size, options.Depth);
 
-        if (colliderShape is null) return entity;
+        //if (colliderShape is null) return entity;
 
         var compoundCollider = options.Component.Collider as CompoundCollider;
 
@@ -68,9 +50,7 @@ public static class EntityExtensions
         var model = entity.Get<ModelComponent>()?.Model;
 
         if (model is null)
-        {
             throw new InvalidOperationException("Entity must have a ModelComponent with a valid model to add Bepu physics.");
-        }
 
         options ??= new();
 
@@ -83,7 +63,7 @@ public static class EntityExtensions
 
         var colliderShape = Get3DColliderShape(type, options.Size);
 
-        if (colliderShape is null) return entity;
+        //if (colliderShape is null) return entity;
 
         var compoundCollider = options.Component.Collider as CompoundCollider;
 
@@ -94,7 +74,7 @@ public static class EntityExtensions
         return entity;
     }
 
-    private static ColliderBase? Get2DColliderShape(Primitive2DModelType type, Vector2? size = null, float depth = 0)
+    private static ColliderBase Get2DColliderShape(Primitive2DModelType type, Vector2? size = null, float depth = 0)
     {
         return type switch
         {
@@ -103,7 +83,7 @@ public static class EntityExtensions
             Primitive2DModelType.Square => size is null ? new BoxCollider() : new() { Size = new(size.Value.X, size.Value.X, depth) },
             Primitive2DModelType.Capsule => size is null ? new CapsuleCollider() : new() { Radius = size.Value.X / 2, Length = size.Value.Y - size.Value.X },
             Primitive2DModelType.Circle => CreateCircleCollider(depth, size),
-            _ => throw new InvalidOperationException(),
+            _ => throw new InvalidOperationException($"Unsupported Primitive2DModelType: {type}"),
         };
 
         // The RotationLocal needs to be initialized before the bounding shape is calculated.
@@ -118,12 +98,12 @@ public static class EntityExtensions
         };
     }
 
-    private static ColliderBase? Get3DColliderShape(PrimitiveModelType type, Vector3? size = null)
+    private static ColliderBase Get3DColliderShape(PrimitiveModelType type, Vector3? size = null)
         => type switch
         {
             PrimitiveModelType.Capsule => size is null ? new CapsuleCollider() { Radius = 0.35f } : new() { Radius = size.Value.X, Length = size.Value.Y },
             PrimitiveModelType.Cone => ConeCollider.Create(size),
-            PrimitiveModelType.Cube => size is null ? new BoxCollider() : new() { Size = size ?? Vector3.One },
+            PrimitiveModelType.Cube => size is null ? new BoxCollider() : new() { Size = (Vector3)size },
             PrimitiveModelType.Cylinder => size is null ? new CylinderCollider() : new()
             {
                 Radius = size.Value.X,
@@ -131,7 +111,7 @@ public static class EntityExtensions
                 //RotationLocal = Quaternion.RotationAxis(Vector3.UnitX, MathUtil.DegreesToRadians(90))
             },
             PrimitiveModelType.Plane => size is null ? new BoxCollider() : new() { Size = new Vector3(size.Value.X, 0, size.Value.Y) },
-            PrimitiveModelType.RectangularPrism => size is null ? new BoxCollider() : new() { Size = size ?? Vector3.One },
+            PrimitiveModelType.RectangularPrism => size is null ? new BoxCollider() : new() { Size = (Vector3)size },
             PrimitiveModelType.Sphere => size is null ? new SphereCollider() : new() { Radius = size.Value.X },
             PrimitiveModelType.Teapot => TeapotCollider.Create(size?.X),
             PrimitiveModelType.TriangularPrism => TriangularPrismCollider.Create(size),
