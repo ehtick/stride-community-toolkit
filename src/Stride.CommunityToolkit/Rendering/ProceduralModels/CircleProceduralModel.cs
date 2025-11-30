@@ -32,7 +32,7 @@ public class CircleProceduralModel : PrimitiveProceduralModelBase
     /// <param name="tessellation">Number of segments around the perimeter.</param>
     /// <param name="uScale">Texture U scale factor.</param>
     /// <param name="vScale">Texture V scale factor.</param>
-    /// <param name="toLeftHanded">If true, reverses winding.</param>
+    /// <param name="toLeftHanded">If true, converts to left-handed coordinate system.</param>
     /// <returns>Mesh data for a circle.</returns>
     public static GeometricMeshData<VertexPositionNormalTexture> New(float radius = 0.5f, int tessellation = 32, float uScale = 1.0f, float vScale = 1.0f, bool toLeftHanded = false)
     {
@@ -89,22 +89,12 @@ public class CircleProceduralModel : PrimitiveProceduralModelBase
             );
         }
 
-        // Create triangles - REVERSE the winding order to flip the circle
+        // Create triangles
         for (var i = 0; i < tessellation; i++)
         {
             indices[i * 3] = 0; // Center vertex
-
-            // Reversed winding order
-            if (toLeftHanded)
-            {
-                indices[i * 3 + 1] = 1 + i;
-                indices[i * 3 + 2] = 1 + ((i + 1) % tessellation);
-            }
-            else
-            {
-                indices[i * 3 + 1] = 1 + ((i + 1) % tessellation);
-                indices[i * 3 + 2] = 1 + i;
-            }
+            indices[i * 3 + 1] = 1 + ((i + 1) % tessellation);
+            indices[i * 3 + 2] = 1 + i;
         }
 
         return new GeometricMeshData<VertexPositionNormalTexture>(vertices.ToArray(), indices.ToArray(), toLeftHanded) { Name = "Circle" };

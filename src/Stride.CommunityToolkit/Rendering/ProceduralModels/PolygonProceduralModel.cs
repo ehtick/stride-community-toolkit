@@ -118,7 +118,7 @@ public class PolygonProceduralModel : PrimitiveProceduralModelBase
         }
 
         // Create triangle indices (fan triangulation)
-        for (int i = 0; i < vertexCount - 2; i++)
+        for (var i = 0; i < vertexCount - 2; i++)
         {
             indices[i * 3] = 0;
             indices[i * 3 + 1] = i + 1;

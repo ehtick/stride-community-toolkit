@@ -67,7 +67,7 @@ public class TriangleProceduralModel : PrimitiveProceduralModelBase
         vertices[1] = new VertexPositionNormalTexture(new Vector3(-size.X, -size.Y, 0), Vector3.UnitZ, textureCoordinates[1]);
         vertices[2] = new VertexPositionNormalTexture(new Vector3(size.X, -size.Y, 0), Vector3.UnitZ, textureCoordinates[2]);
 
-        // One triangle
+        // Triangle indices
         indices[0] = 0;
         indices[1] = 2;
         indices[2] = 1;

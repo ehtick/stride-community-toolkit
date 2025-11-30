@@ -60,6 +60,12 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
     /// <inheritdoc cref="New(float, float, int, float, float, bool)"/>
     public static GeometricMeshData<VertexPositionNormalTexture> CreateMesh(float height = 1.0f, float radius = 0.25f, int tessellation = 16, float uScale = 1.0f, float vScale = 1.0f, bool toLeftHanded = false)
     {
+        // UV coordinate constants for consistent texture mapping
+        const float uvCenterX = 0.5f;
+        const float uvTopY = 0.75f;
+        const float uvBottomY = 0.25f;
+        const float uvSemicircleHeight = 0.25f;
+
         // Cap the minimum tessellation to prevent issues
         tessellation = Math.Max(4, tessellation);
 
@@ -106,7 +112,7 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
         vertices[currentVertex++] = new VertexPositionNormalTexture(
             topCircleCenter,
             normal,
-            new Vector2(0.5f, 0.75f) * uvScale // Adjusted UV to match rectangle top
+            new Vector2(uvCenterX, uvTopY) * uvScale
         );
 
         // Top semicircle perimeter
@@ -117,8 +123,8 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
             var y = radius * MathF.Sin(angle);
 
             var texCoord = new Vector2(
-                0.5f + (MathF.Cos(angle) * 0.5f),
-                0.75f + (MathF.Sin(angle) * 0.25f) // Adjusted UV to match with rectangle
+                uvCenterX + (MathF.Cos(angle) * 0.5f),
+                uvTopY + (MathF.Sin(angle) * uvSemicircleHeight)
             );
 
             vertices[currentVertex++] = new VertexPositionNormalTexture(
@@ -137,28 +143,28 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
             vertices[currentVertex++] = new VertexPositionNormalTexture(
                 new Vector3(-radius, halfRectHeight, 0),
                 normal,
-                new Vector2(0, 0.75f) * uvScale
+                new Vector2(0, uvTopY) * uvScale
             );
 
             // Bottom-left
             vertices[currentVertex++] = new VertexPositionNormalTexture(
                 new Vector3(-radius, -halfRectHeight, 0),
                 normal,
-                new Vector2(0, 0.25f) * uvScale
+                new Vector2(0, uvBottomY) * uvScale
             );
 
             // Bottom-right
             vertices[currentVertex++] = new VertexPositionNormalTexture(
                 new Vector3(radius, -halfRectHeight, 0),
                 normal,
-                new Vector2(1, 0.25f) * uvScale
+                new Vector2(1, uvBottomY) * uvScale
             );
 
             // Top-right
             vertices[currentVertex++] = new VertexPositionNormalTexture(
                 new Vector3(radius, halfRectHeight, 0),
                 normal,
-                new Vector2(1, 0.75f) * uvScale
+                new Vector2(1, uvTopY) * uvScale
             );
         }
 
@@ -168,7 +174,7 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
         vertices[currentVertex++] = new VertexPositionNormalTexture(
             bottomCircleCenter,
             normal,
-            new Vector2(0.5f, 0.25f) * uvScale // Adjusted UV to match rectangle bottom
+            new Vector2(uvCenterX, uvBottomY) * uvScale
         );
 
         // Bottom semicircle perimeter
@@ -179,8 +185,8 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
             var y = radius * MathF.Sin(angle);
 
             var texCoord = new Vector2(
-                0.5f + (MathF.Cos(angle) * 0.5f),
-                0.25f + (MathF.Sin(angle) * 0.25f) // Adjusted UV to match with rectangle
+                uvCenterX + (MathF.Cos(angle) * 0.5f),
+                uvBottomY + (MathF.Sin(angle) * uvSemicircleHeight)
             );
 
             vertices[currentVertex++] = new VertexPositionNormalTexture(
@@ -223,13 +229,10 @@ public class Capsule2DProceduralModel : PrimitiveProceduralModelBase
             indices[currentIndex++] = bottomCenterIndex + i + 1;
         }
 
-        // Flip winding for a left-handed coordinate system
-        if (toLeftHanded)
-        {
-            for (var i = 0; i < indexCount; i += 3)
-                (indices[i + 1], indices[i + 2]) = (indices[i + 2], indices[i + 1]);
-        }
+        // Convert spans to arrays for GeometricMeshData
+        var vertexArray = vertices.ToArray();
+        var indexArray = indices.ToArray();
 
-        return new GeometricMeshData<VertexPositionNormalTexture>(vertices.ToArray(), indices.ToArray(), toLeftHanded) { Name = "Capsule" };
+        return new GeometricMeshData<VertexPositionNormalTexture>(vertexArray, indexArray, toLeftHanded) { Name = "Capsule2D" };
     }
 }
