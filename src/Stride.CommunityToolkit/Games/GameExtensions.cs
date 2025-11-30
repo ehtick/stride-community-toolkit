@@ -61,7 +61,12 @@ public static class GameExtensions
         ArgumentNullException.ThrowIfNull(game);
 
         options ??= new();
-        options.Size ??= ((type == Primitive2DModelType.Capsule) ? new Vector2(0.25f, 1f) : options.Size);
+        options.Size ??= type switch
+        {
+            Primitive2DModelType.Capsule => new Vector2(0.25f, 1f),
+            Primitive2DModelType.Rectangle => new Vector2(0.5f, 1f),
+            _ => options.Size
+        };
 
         var modelBase = Procedural2DModelBuilder.Build(type, options.Size, options.Depth);
 

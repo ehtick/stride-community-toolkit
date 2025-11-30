@@ -32,7 +32,7 @@ public static class Procedural2DModelBuilder
             Primitive2DModelType.Circle => new CircleProceduralModel() { Radius = size?.X ?? 0.5f },
             //Primitive2DModelType.Polygon => size is null ? new PolygonProceduralModel() : new() { Radius = size.Value.X, Sides = (int)size.Value.Y },
             //Primitive2DModelType.Quad => size is null ? new QuadProceduralModel() : new() { Size = size.Value.XY() },
-            Primitive2DModelType.Rectangle => new RectangleProceduralModel() { Size = size ?? new(2, 1) },
+            Primitive2DModelType.Rectangle => new RectangleProceduralModel() { Size = size ?? new(0.5f, 1) },
             Primitive2DModelType.Square => new RectangleProceduralModel() { Size = size ?? new(1, 1) },
             Primitive2DModelType.Triangle => new TriangleProceduralModel() { Size = size ?? new(1, 1) },
             _ => throw new InvalidOperationException($"Unsupported Primitive2DModelType: {type}")

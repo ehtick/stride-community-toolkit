@@ -11,7 +11,7 @@ public class RectangleProceduralModel : PrimitiveProceduralModelBase
     /// <summary>
     /// Gets or sets the size of the object as a two-dimensional vector.
     /// </summary>
-    public Vector2 Size { get; set; } = Vector2.One;
+    public Vector2 Size { get; set; } = new(0.5f, 1);
 
     private static readonly Vector2[] _textureCoordinates = [new(1, 0), new(1, 1), new(0, 1), new(0, 0)];
     private static readonly Dictionary<MeshCacheKey, GeometricMeshData<VertexPositionNormalTexture>> _meshCache = [];
