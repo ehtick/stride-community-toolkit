@@ -13,7 +13,7 @@ These repository instructions guide GitHub Copilot (and similar AI assistants) t
 - Prefer well-documented, core, and recently updated toolkit helpers over unverified examples.
 
 ## Project overview
-- A collection of C# helpers and extensions for the [Stride Game Engine](https://www.stride3d.net/), primarily targeting **.NET 8** (some projects may also multi-target newer frameworks such as .NET 9).
+- A collection of C# helpers and extensions for the [Stride Game Engine](https://www.stride3d.net/), primarily targeting **.NET 10** (some projects may also multi-target newer frameworks).
 - Provides library projects, code-only examples, snippet examples, and documentation to simplify Stride game development.
 - F# and VB.NET examples are showcase-only (not the primary focus).
 - Uses the latest Stride version with nullable reference types enabled.
