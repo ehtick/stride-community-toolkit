@@ -29,6 +29,7 @@ void Start(Scene rootScene)
 
     game.SetupBase2D();
     game.Add2DCameraController();
+    game.AddProfiler();
 
     var ground = game.Add2DGround();
     ground.Transform.Position = new Vector3(0, -4, 0);
