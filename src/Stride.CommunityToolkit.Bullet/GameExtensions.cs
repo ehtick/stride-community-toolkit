@@ -38,6 +38,9 @@ public static class GameExtensions
         game.Add3DGround();
     }
 
+    public static Entity Add2DGround(this Game game, string? entityName = GameDefaults.DefaultGroundName, Vector3? size = null, bool includeCollider = true)
+        => CreateGround(game, entityName, size ?? GameDefaults.Default2DGroundSize, includeCollider, PrimitiveModelType.Cube);
+
     /// <summary>
     /// Adds a 3D ground entity to the game with a default size of 15x15 units. The ground is created as a plane, and a collider can be optionally added.
     /// </summary>
@@ -46,7 +49,7 @@ public static class GameExtensions
     /// <param name="size">The size of the ground, specified as a 2D vector. If not provided, it defaults to (10, 10) units.</param>
     /// <param name="includeCollider">Specifies whether to add a collider to the ground. Defaults to true.</param>
     /// <returns>The created Entity object representing the 3D ground.</returns>
-    public static Entity Add3DGround(this Game game, string? entityName = GameDefaults.DefaultGroundName, Vector2? size = null, bool includeCollider = true)
+    public static Entity Add3DGround(this Game game, string? entityName = GameDefaults.DefaultGroundName, Vector3? size = null, bool includeCollider = true)
         => CreateGround(game, entityName, size, includeCollider, PrimitiveModelType.Plane);
 
     /// <summary>
@@ -58,41 +61,8 @@ public static class GameExtensions
     /// <param name="size">Defines the visible part of the ground, specified as a 2D vector. If not provided, it defaults to (10, 10) units.</param>
     /// <param name="includeCollider">Specifies whether to add a collider to the ground. The collider is infinite, extending beyond the visible part. Defaults to true.</param>
     /// <returns>The created Entity object representing the infinite 3D ground.</returns>
-    public static Entity AddInfinite3DGround(this Game game, string? entityName = GameDefaults.DefaultGroundName, Vector2? size = null, bool includeCollider = true)
+    public static Entity AddInfinite3DGround(this Game game, string? entityName = GameDefaults.DefaultGroundName, Vector3? size = null, bool includeCollider = true)
         => CreateGround(game, entityName, size, includeCollider, PrimitiveModelType.InfinitePlane);
-
-    public static Entity Add2DGround(this Game game, string? entityName = GameDefaults.DefaultGroundName, Vector2? size = null)
-    {
-        var validSize = size is null ? GameDefaults.Default2DGroundSize : new Vector3(size.Value.X, size.Value.Y, 0);
-
-        var material = game.CreateMaterial(GameDefaults.DefaultGroundMaterialColor, 0.0f, 0.1f);
-
-        var proceduralModel = Procedural3DModelBuilder.Build(PrimitiveModelType.Cube, validSize);
-        var model = proceduralModel.Generate(game.Services);
-
-        if (material != null)
-            model.Materials.Add(material);
-
-        var entity = new Entity(entityName) { new ModelComponent(model) };
-
-        var collider = new StaticColliderComponent();
-
-        //collider.ColliderShape = new StaticPlaneColliderShape(Vector3.UnitY, 0)
-        //{
-        //    LocalOffset = new Vector3(0, 0, 0),
-        //};
-
-        collider.ColliderShape = new BoxColliderShape(is2D: true, validSize)
-        {
-            LocalOffset = new Vector3(0, 0, 0),
-        };
-
-        entity.Add(collider);
-
-        entity.Scene = game.SceneSystem.SceneInstance.RootScene;
-
-        return entity;
-    }
 
     public static Entity Create2DPrimitive(this IGame game, Primitive2DModelType type, Bullet2DPhysicsOptions? options = null)
     {
@@ -122,7 +92,6 @@ public static class GameExtensions
         options ??= new();
 
         var entity = game.Create3DPrimitive(type, (Primitive3DEntityOptions)options);
-        //var entity = Games.GameExtensions.Create3DPrimitive(game, type, options);
 
         entity.AddBullet3DPhysics(type, options);
 
@@ -145,7 +114,7 @@ public static class GameExtensions
         simulation.ColliderShapesRendering = true;
     }
 
-    private static Entity CreateGround(Game game, string? entityName, Vector2? size, bool includeCollider, PrimitiveModelType type)
+    private static Entity CreateGround(Game game, string? entityName, Vector3? size, bool includeCollider, PrimitiveModelType type)
     {
         var validSize = size ?? GameDefaults.Default3DGroundSize;
 
@@ -155,7 +124,7 @@ public static class GameExtensions
         {
             EntityName = entityName,
             Material = material,
-            Size = (Vector3)validSize,
+            Size = validSize,
             PhysicsComponent = new StaticColliderComponent(),
             IncludeCollider = includeCollider
         });
