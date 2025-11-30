@@ -23,9 +23,7 @@ public class Body2DComponent : BodyComponent, ISimulationUpdate
     /// Creates a new <see cref="Body2DComponent"/>. Interpolation is enabled by default.
     /// </summary>
     public Body2DComponent()
-    {
-        InterpolationMode = BepuPhysics.Definitions.InterpolationMode.Interpolated;
-    }
+        => InterpolationMode = BepuPhysics.Definitions.InterpolationMode.Interpolated;
 
     /// <inheritdoc />
     /// <remarks>
@@ -37,7 +35,7 @@ public class Body2DComponent : BodyComponent, ISimulationUpdate
         // Keep the shape-derived inertia so rotation (including around Z) works.
         base.AttachInner(pose, shapeInertia, shapeIndex);
 
-        // Constrain rotation to Z by removing X/Y inverse inertia (hard lock) and clearing cross terms.
+                        // Constrain rotation to Z by removing X/Y inverse inertia (hard lock) and clearing cross terms.
         var inertia = BodyInertia;
         var inverseInertia = inertia.InverseInertiaTensor;
         inverseInertia.XX = 0f;
@@ -49,12 +47,11 @@ public class Body2DComponent : BodyComponent, ISimulationUpdate
         BodyInertia = inertia;
 
         // Hulls tend to create energetic corrections in dense piles; tame it slightly.
-        if (HasConvexHull(Collider))
-        {
-            MaximumRecoveryVelocity = MathF.Min(MaximumRecoveryVelocity, 1.5f);
-            SpringDampingRatio = MathF.Max(SpringDampingRatio, 1f);
-            SpringFrequency = MathF.Min(SpringFrequency, 30f);
-        }
+        if (!HasConvexHull(Collider)) return;
+
+        MaximumRecoveryVelocity = MathF.Min(MaximumRecoveryVelocity, 1.5f);
+        SpringDampingRatio = MathF.Max(SpringDampingRatio, 1f);
+        SpringFrequency = MathF.Min(SpringFrequency, 30f);
     }
 
     /// <summary>
@@ -62,14 +59,15 @@ public class Body2DComponent : BodyComponent, ISimulationUpdate
     /// </summary>
     private static bool HasConvexHull(ICollider? collider)
     {
-        if (collider is null) return false;
-        if (collider is CompoundCollider compound && compound.Colliders is { } list)
+        if (collider is not CompoundCollider { Colliders: { } list })
+            return false;
+
+        for (var i = 0; i < list.Count; i++)
         {
-            for (int i = 0; i < list.Count; i++)
-            {
-                if (list[i] is ConvexHullCollider) return true;
-            }
+            if (list[i] is ConvexHullCollider)
+                return true;
         }
+
         return false;
     }
 
