@@ -11,7 +11,6 @@ game.Run(start: Start);
 void Start(Scene rootScene)
 {
     game.SetupBase2DScene();
-    game.AddProfiler();
 
     var entity = game.Create2DPrimitive(Primitive2DModelType.Capsule);
     entity.Transform.Position = new Vector3(0, 8, 0);
