@@ -29,7 +29,7 @@ public class DebugRenderComponentScript : SyncScript
 
     /// <summary>
     /// True when a <see cref="DebugRenderComponent"/> has already been added to the entity.
-    /// This prevents adding multiple debug components on subsequent frames.
+    /// This prevents adding multiple debug components on later frames.
     /// </summary>
     private bool _debugAdded;
 
@@ -39,7 +39,7 @@ public class DebugRenderComponentScript : SyncScript
     /// <see cref="DebugRenderComponent"/> to the <see cref="Entity"/>.
     /// </summary>
     /// <remarks>
-    /// This method intentionally performs a cheap count check every frame and only performs the
+    /// This method intentionally performs an inexpensive count check every frame and only performs the
     /// addition once. After the component is added, the component's visibility can be toggled
     /// at runtime by pressing <c>Keys.F11</c> (handled by <see cref="DebugRenderComponent"/>).
     /// See the class-level remarks for additional behavior: the debug renderer is global to the
