@@ -33,6 +33,7 @@ void Start(Scene rootScene)
     var ground = game.Add2DGround();
     ground.Transform.Position = new Vector3(0, -4, 0);
 
+    // Lighting example for 2D scene
     AddSpotLight(rootScene);
 
     for (int i = -count / 2; i < count / 2; i++)
@@ -49,17 +50,8 @@ void Start(Scene rootScene)
         }
     }
 
-    var debugGizmoEntity = new Entity("DebugGizmo")
-    {
-        new DebugRenderComponentScript(),
-        new CollidableGizmoScript()
-        {
-            Color = new Color4(0.4f, 0.843f, 0, 0.9f),
-            Visible = false
-        }
-    };
-
-    debugGizmoEntity.Scene = rootScene;
+    // Activate debug rendering by pressing P for colliders and F11 for mesh
+    AddPhysicsDebugGizmo(rootScene);
 }
 
 static void AddSpotLight(Scene rootScene)
@@ -80,4 +72,19 @@ static void AddSpotLight(Scene rootScene)
 
     spotLight.Transform.Position = new Vector3(0, -4, 2);
     spotLight.Scene = rootScene;
+}
+
+static void AddPhysicsDebugGizmo(Scene rootScene)
+{
+    var debugGizmoEntity = new Entity("DebugGizmo")
+    {
+        new DebugRenderComponentScript(),
+        new CollidableGizmoScript()
+        {
+            Color = new Color4(0.4f, 0.843f, 0, 0.9f),
+            Visible = false
+        }
+    };
+
+    debugGizmoEntity.Scene = rootScene;
 }
