@@ -467,11 +467,11 @@ public static class GameExtensions
     }
 
     /// <summary>
-    /// Creates a material with flat colors that lighting doesn't affect, ideal for 2D rendering.
+    /// Creates a material with flat colors ideal for 2D rendering, using emissive color unaffected by lighting.
     /// </summary>
     /// <param name="game">The game instance used to access the graphics device.</param>
-    /// <param name="color">The color of the material. Uses white if not specified.</param>
-    /// <returns>A new material instance with flat coloring unaffected by lighting.</returns>
+    /// <param name="color">The color of the material, including alpha. Uses white if not specified.</param>
+    /// <returns>A new material instance with flat coloring.</returns>
     public static Material CreateFlatMaterial(this IGame game, Color? color = null)
     {
         var materialColor = color ?? Color.White;
@@ -480,11 +480,11 @@ public static class GameExtensions
         {
             Attributes =
             {
-                Diffuse = new MaterialDiffuseMapFeature(new ComputeColor(materialColor)) { Enabled = true },
+                Emissive = new MaterialEmissiveMapFeature(new ComputeColor(materialColor)),
+                Diffuse = new MaterialDiffuseMapFeature(new ComputeColor(materialColor)),
                 DiffuseModel = new MaterialDiffuseLambertModelFeature(),
                 Specular = null,
-                SpecularModel = null,
-                Emissive = new MaterialEmissiveMapFeature(new ComputeColor(materialColor))
+                SpecularModel = null
             }
         };
 
