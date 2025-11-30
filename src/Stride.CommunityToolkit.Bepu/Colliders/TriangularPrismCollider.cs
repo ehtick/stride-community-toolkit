@@ -11,7 +11,7 @@ namespace Stride.CommunityToolkit.Bepu.Colliders;
 /// <remarks>
 /// Builds a convex hull from a generated triangular prism mesh. If no explicit size is provided,
 /// default values are taken from <see cref="TriangularPrismProceduralModel"/>.
-/// The triangular cross-section lies in the X/Y plane and the prism extends along the Z axis (depth).
+/// The triangular cross-section lies on the X/Y plane and the prism extends along the Z axis (depth).
 /// X specifies the base width of the triangle, Y specifies the triangle height, and Z specifies the prism depth.
 /// </remarks>
 /// <example>
@@ -47,9 +47,7 @@ public static class TriangularPrismCollider
             validatedSize = prismModel.Size;
         }
         else
-        {
             validatedSize = size.Value;
-        }
 
         var meshData = TriangularPrismProceduralModel.New(validatedSize);
 

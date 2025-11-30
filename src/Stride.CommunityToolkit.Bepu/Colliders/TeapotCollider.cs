@@ -46,9 +46,7 @@ public static class TeapotCollider
             validatedSize = teapotModel.Size;
         }
         else
-        {
             validatedSize = size.Value;
-        }
 
         var meshData = GeometricPrimitive.Teapot.New(size: validatedSize, 16);
 
