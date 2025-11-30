@@ -63,21 +63,23 @@ Guidelines:
 ```csharp
 using var game = new Game();
 
-game.Run(start: (Scene rootScene) =>
+game.Run(start: Start);
+
+void Start(Scene rootScene)
 {
-    game.SetupBase3DScene(); // Camera, lighting, ground
+    game.SetupBase3DScene();
     game.AddSkybox();
 
     var entity = game.Create3DPrimitive(PrimitiveModelType.Capsule);
     entity.Transform.Position = new Vector3(0, 8, 0);
     entity.Scene = rootScene;
-});
+}
 ```
 
 ## Coding Style & Conventions
 - Use latest C# features (file-scoped namespaces, target-typed `new`, pattern matching, spans where beneficial, primary ctors where suitable).
 - Keep nullable-reference warnings at zero.
-- Public APIs: include complete XML docs (`<summary>`, `<param>`, `<returns>`, `<example>` when useful).
+- Public APIs: include complete XML docs (`<summary>`, `<param>`, `<returns>`, `<example>` when useful) including top level classes.
 - Naming: `Stride.CommunityToolkit.<LibraryName>` for new libs; PascalCase for types and methods; camelCase for parameters.
 - Terminology / capitalization: Use “Bepu” (capital B only) in identifiers and XML docs; never “BEPU” or “bepu”. Use “Bullet” (capital B) for Bullet physics.
 - One public type per file; avoid unrelated multi-class files.
