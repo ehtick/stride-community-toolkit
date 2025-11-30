@@ -157,31 +157,6 @@ public static class GameExtensions
         return graphicsCompositor;
     }
 
-    /// <summary>
-    /// Creates a material with flat colors that lighting doesn't affect, ideal for 2D rendering.
-    /// </summary>
-    /// <param name="game">The game instance used to access the graphics device.</param>
-    /// <param name="color">The color of the material. Uses white if not specified.</param>
-    /// <returns>A new material instance with flat coloring unaffected by lighting.</returns>
-    public static Material CreateFlatMaterial(this IGame game, Color? color = null)
-    {
-        var materialColor = color ?? Color.White;
-
-        var materialDescription = new MaterialDescriptor
-        {
-            Attributes =
-            {
-                Diffuse = new MaterialDiffuseMapFeature(new ComputeColor(materialColor)) { Enabled = true },
-                DiffuseModel = new MaterialDiffuseLambertModelFeature(),
-                Specular = null,
-                SpecularModel = null,
-                Emissive = new MaterialEmissiveMapFeature(new ComputeColor(materialColor))
-            }
-        };
-
-        return Material.New(game.GraphicsDevice, materialDescription);
-    }
-
     // Helper method to remove lighting features from a GraphicsCompositor
     private static void RemoveLightingFeatures(GraphicsCompositor compositor)
     {
@@ -489,6 +464,31 @@ public static class GameExtensions
 
         return Material.New(game.GraphicsDevice, materialDescription);
         //options.Size /= 2;
+    }
+
+    /// <summary>
+    /// Creates a material with flat colors that lighting doesn't affect, ideal for 2D rendering.
+    /// </summary>
+    /// <param name="game">The game instance used to access the graphics device.</param>
+    /// <param name="color">The color of the material. Uses white if not specified.</param>
+    /// <returns>A new material instance with flat coloring unaffected by lighting.</returns>
+    public static Material CreateFlatMaterial(this IGame game, Color? color = null)
+    {
+        var materialColor = color ?? Color.White;
+
+        var materialDescription = new MaterialDescriptor
+        {
+            Attributes =
+            {
+                Diffuse = new MaterialDiffuseMapFeature(new ComputeColor(materialColor)) { Enabled = true },
+                DiffuseModel = new MaterialDiffuseLambertModelFeature(),
+                Specular = null,
+                SpecularModel = null,
+                Emissive = new MaterialEmissiveMapFeature(new ComputeColor(materialColor))
+            }
+        };
+
+        return Material.New(game.GraphicsDevice, materialDescription);
     }
 
     /// <summary>
