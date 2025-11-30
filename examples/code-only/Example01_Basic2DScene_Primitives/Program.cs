@@ -1,20 +1,70 @@
 using Stride.CommunityToolkit.Bepu;
 using Stride.CommunityToolkit.Engine;
+using Stride.CommunityToolkit.Mathematics;
 using Stride.CommunityToolkit.Rendering.ProceduralModels;
 using Stride.Core.Mathematics;
 using Stride.Engine;
 using Stride.Rendering.Lights;
 
+var random = new Random(1);
+var count = 10;
+List<Primitive2DModelType> primitives = [
+    Primitive2DModelType.Circle,
+    Primitive2DModelType.Capsule,
+    Primitive2DModelType.Rectangle,
+    Primitive2DModelType.Square,
+    Primitive2DModelType.Triangle,
+    Primitive2DModelType.Circle,
+    Primitive2DModelType.Capsule,
+];
+
 using var game = new Game();
 
-game.Run(start: (Action<Scene>?)((Scene rootScene) =>
+game.Run(start: Start);
+
+void Start(Scene rootScene)
 {
     game.Window.AllowUserResizing = true;
     game.Window.Title = "Bepu 2D Physics Example - Stride Community Toolkit";
 
-    game.SetupBase2DScene();
+    game.SetupBase2D();
+    game.Add2DCameraController();
     game.AddProfiler();
 
+    var ground = game.Add2DGround();
+    ground.Transform.Position = new Vector3(0, -4, 0);
+
+    AddSpotLight(rootScene);
+
+    for (int i = -count / 2; i < count / 2; i++)
+    {
+        foreach (var (index, primitive2) in primitives.Index())
+        {
+            var entity = game.Create2DPrimitive(primitive2, new()
+            {
+                Material = game.CreateFlatMaterial(random.NextColor()),
+            });
+
+            entity.Transform.Position = new Vector3(i, 10 + index * 1.5f, 0);
+            entity.Scene = rootScene;
+        }
+    }
+
+    var debugGizmoEntity = new Entity("DebugGizmo")
+    {
+        new DebugRenderComponentScript(),
+        new CollidableGizmoScript()
+        {
+            Color = new Color4(0.4f, 0.843f, 0, 0.9f),
+            Visible = false
+        }
+    };
+
+    debugGizmoEntity.Scene = rootScene;
+}
+
+static void AddSpotLight(Scene rootScene)
+{
     var spotLight = new Entity("SpotLight")
     {
         new LightComponent
@@ -25,40 +75,13 @@ game.Run(start: (Action<Scene>?)((Scene rootScene) =>
                 AngleInner = 20f,
                 AngleOuter = 35f
             },
-            Intensity = 50f, // Crank it up to be sure
+            Intensity = 1000f,
         }
     };
-    // IMPORTANT: Position it BACK (Z=5) and ensure it points AT the sphere
+
+    // Position it back (Z=5) and ensure it points to the origin.
     // Default SpotLight usually points along -Z.
     // If Light is at (0,0,5), pointing -Z hits (0,0,0).
-    spotLight.Transform.Position = new Vector3(0, 0, 5);
+    spotLight.Transform.Position = new Vector3(0, -4, 2);
     spotLight.Scene = rootScene;
-
-    for (int i = 0; i <= 30; i++)
-    {
-        var primitive = game.Create2DPrimitive(Primitive2DModelType.Capsule, new()
-        {
-            Material = game.CreateFlatMaterial(Color.Orange),
-            //Size = new Vector2(0.2f, 0.7f),
-            //Size = new Vector2(0.1f, 1),
-            Depth = 1
-        });
-        primitive.Transform.Position = new Vector3(0, 10 + i * 2, 0);
-        primitive.Scene = rootScene;
-    }
-
-    var entity = game.Create2DPrimitive(Primitive2DModelType.Circle, new()
-    {
-        Material = game.CreateFlatMaterial(Color.Red),
-    });
-
-    entity.Transform.Position = new Vector3(0, 8, 0);
-    entity.Add(new DebugRenderComponentScript());
-    entity.Add(new CollidableGizmoScript()
-    {
-        Color = new Color4(0.4f, 0.843f, 0, 0.9f),
-        Visible = false
-    });
-
-    entity.Scene = rootScene;
-}));
+}
