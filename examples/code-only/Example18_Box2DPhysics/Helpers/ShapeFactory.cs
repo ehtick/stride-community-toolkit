@@ -87,7 +87,7 @@ public class ShapeFactory(Game game, Scene scene)
     private static float GetRadius(Shape2DModel model) => model.Type switch
     {
         Primitive2DModelType.Circle => model.Size.X,
-        Primitive2DModelType.Capsule => model.Size.X / 2,
+        Primitive2DModelType.Capsule => model.Size.X,
         _ => 0f
     };
 

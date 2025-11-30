@@ -135,7 +135,7 @@ public static class ShapeFixtureBuilder
     private static void CreateCapsule(Shape2DModel shapeModel, B2BodyId bodyId, B2ShapeDef shapeDef)
     {
         var halfHeight = shapeModel.Size.Y / 2;
-        var radius = shapeModel.Size.X / 2;
+        var radius = shapeModel.Size.X;
         var capsuleHeight = halfHeight - radius;
 
         var capsule = new B2Capsule(new B2Vec2(0, -capsuleHeight), new B2Vec2(0, capsuleHeight), radius);

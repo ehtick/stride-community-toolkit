@@ -28,7 +28,11 @@ public static class GameConfig
     public static readonly Vector2 RectangleSize = new(0.3f, 0.6f);
     public static readonly Vector2 CircleSize = new(0.3f, 0.3f);
     public static readonly Vector2 TriangleSize = new(0.5f, 0.5f);
-    public static readonly Vector2 CapsuleSize = new(0.3f, 0.6f);
+
+    /// <summary>
+    /// The X value represents the radius, and the Y value represents the total height of the capsule.
+    /// </summary>
+    public static readonly Vector2 CapsuleSize = new(0.1f, 0.4f);
 
     // Spawn settings
     public const int DefaultSpawnCount = 10;
