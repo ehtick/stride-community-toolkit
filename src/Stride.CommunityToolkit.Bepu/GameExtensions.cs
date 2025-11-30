@@ -55,8 +55,8 @@ public static class GameExtensions
     /// <param name="includeCollider">Specifies whether a collider should be included with the ground entity. Set to <see langword="true"/> to add a
     /// collider; otherwise, <see langword="false"/>.</param>
     /// <returns>The newly created ground entity added to the game.</returns>
-    public static Entity Add2DGround(this Game game, string? entityName = GameDefaults.DefaultGroundName, Vector2? size = null, bool includeCollider = true)
-        => CreateGround(game, entityName, size ?? GameDefaults.Default2DGroundSize.XY(), includeCollider, PrimitiveModelType.Cube);
+    public static Entity Add2DGround(this Game game, string? entityName = GameDefaults.DefaultGroundName, Vector3? size = null, bool includeCollider = true)
+        => CreateGround(game, entityName, size ?? GameDefaults.Default2DGroundSize, includeCollider, PrimitiveModelType.Cube);
 
     /// <summary>
     /// Adds a 3D ground entity to the game.
@@ -66,7 +66,7 @@ public static class GameExtensions
     /// <param name="size">Optional ground size; defaults to <see cref="GameDefaults.Default3DGroundSize"/>.</param>
     /// <param name="includeCollider">If true, attaches a <see cref="CompoundCollider"/>.</param>
     /// <returns>The created ground <see cref="Entity"/>.</returns>
-    public static Entity Add3DGround(this Game game, string? entityName = GameDefaults.DefaultGroundName, Vector2? size = null, bool includeCollider = true)
+    public static Entity Add3DGround(this Game game, string? entityName = GameDefaults.DefaultGroundName, Vector3? size = null, bool includeCollider = true)
         => CreateGround(game, entityName, size, includeCollider, PrimitiveModelType.Plane);
 
     /// <summary>
@@ -104,7 +104,7 @@ public static class GameExtensions
         return entity;
     }
 
-    private static Entity CreateGround(Game game, string? entityName, Vector2? size, bool includeCollider, PrimitiveModelType type)
+    private static Entity CreateGround(Game game, string? entityName, Vector3? size, bool includeCollider, PrimitiveModelType type)
     {
         var validSize = size ?? GameDefaults.Default3DGroundSize;
 
@@ -114,7 +114,7 @@ public static class GameExtensions
         {
             EntityName = entityName,
             Material = material,
-            Size = (Vector3)validSize,
+            Size = validSize,
             Component = new StaticComponent() { Collider = new CompoundCollider() },
             IncludeCollider = includeCollider
         });
