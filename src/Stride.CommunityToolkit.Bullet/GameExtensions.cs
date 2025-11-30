@@ -71,9 +71,7 @@ public static class GameExtensions
         var model = proceduralModel.Generate(game.Services);
 
         if (material != null)
-        {
             model.Materials.Add(material);
-        }
 
         var entity = new Entity(entityName) { new ModelComponent(model) };
 
@@ -136,7 +134,7 @@ public static class GameExtensions
     /// </summary>
     /// <param name="game">The current game instance.</param>
     /// <remarks>
-    /// This method activates the rendering of collider shapes within the physics simulation. It helps to visually inspect and debug the positioning and behaviour of colliders at runtime.
+    /// This method activates the rendering of collider shapes within the physics simulation. It helps to visually inspect and debug the positioning and behavior of colliders at runtime.
     /// </remarks>
     public static void ShowColliders(this Game game)
     {
