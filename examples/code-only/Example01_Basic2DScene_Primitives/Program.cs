@@ -34,16 +34,17 @@ game.Run(start: (Action<Scene>?)((Scene rootScene) =>
     spotLight.Transform.Position = new Vector3(0, 0, 5);
     spotLight.Scene = rootScene;
 
-    for (int i = 0; i <= 50; i++)
+    for (int i = 0; i <= 30; i++)
     {
-        var box = game.Create2DPrimitive(Primitive2DModelType.Capsule, new()
+        var primitive = game.Create2DPrimitive(Primitive2DModelType.Capsule, new()
         {
             Material = game.CreateFlatMaterial(Color.Orange),
-            Size = new Vector2(0.5f, 0.8f),
+            //Size = new Vector2(0.2f, 0.7f),
+            //Size = new Vector2(0.1f, 1),
             Depth = 1
         });
-        box.Transform.Position = new Vector3(0, 10 + i * 2, 0);
-        box.Scene = rootScene;
+        primitive.Transform.Position = new Vector3(0, 10 + i * 2, 0);
+        primitive.Scene = rootScene;
     }
 
     var entity = game.Create2DPrimitive(Primitive2DModelType.Circle, new()
