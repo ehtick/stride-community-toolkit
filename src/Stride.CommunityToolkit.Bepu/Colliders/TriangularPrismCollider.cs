@@ -53,6 +53,6 @@ public static class TriangularPrismCollider
 
         var meshData = TriangularPrismProceduralModel.New(validatedSize);
 
-        return meshData.ToConvexHullColliderWithWelding();
+        return meshData.ToConvexHullCollider();
     }
 }
