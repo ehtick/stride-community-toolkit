@@ -79,7 +79,24 @@ game.Run(start: (Action<Scene>?)((Scene rootScene) =>
     //simulation2DEntity.Scene = rootScene;
     //simulation2DEntity.AddGizmo(game.GraphicsDevice, showAxisName: true);
 
+    //AddPhysicsDebugGizmo(rootScene);
+
 }), update: Update);
+
+static void AddPhysicsDebugGizmo(Scene rootScene)
+{
+    var debugGizmoEntity = new Entity("DebugGizmo")
+    {
+        new DebugRenderComponentScript(),
+        new CollidableGizmoScript()
+        {
+            Color = new Color4(0.4f, 0.843f, 0, 0.9f),
+            Visible = false
+        }
+    };
+
+    debugGizmoEntity.Scene = rootScene;
+}
 
 void Update(Scene scene, GameTime time)
 {
