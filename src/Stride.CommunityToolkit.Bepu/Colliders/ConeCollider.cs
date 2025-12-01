@@ -48,7 +48,9 @@ public static class ConeCollider
             validatedSize = new(coneModel.Radius, coneModel.Height, 1);
         }
         else
+        {
             validatedSize = size.Value;
+        }
 
         var meshData = GeometricPrimitive.Cone.New(radius: validatedSize.X, height: validatedSize.Y);
 

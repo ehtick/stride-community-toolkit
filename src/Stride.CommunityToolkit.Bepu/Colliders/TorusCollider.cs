@@ -46,7 +46,9 @@ public static class TorusCollider
             validatedMajorRadius = torusModel.Radius;
         }
         else
+        {
             validatedMajorRadius = majorRadius.Value;
+        }
 
         if (minorRadius is null)
         {
@@ -55,7 +57,9 @@ public static class TorusCollider
             validatedMinorRadius = torusModel.Thickness;
         }
         else
+        {
             validatedMinorRadius = minorRadius.Value;
+        }
 
         var meshData = GeometricPrimitive.Torus.New(majorRadius: validatedMajorRadius, minorRadius: validatedMinorRadius);
 
