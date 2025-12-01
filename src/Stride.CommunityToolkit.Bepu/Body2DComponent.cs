@@ -107,6 +107,7 @@ public class Body2DComponent : BodyComponent, ISimulationUpdate
     /// Applies a proportional velocity correction on the Z axis to drive the body back to the plane (Z = 0)
     /// only when drift exceeds <see cref="ZTolerance"/>. Also zeros out X/Y angular velocities to prevent
     /// rotation around those axes. This avoids injecting energy while keeping the body constrained to 2D.
+    /// Bodies are allowed to sleep naturally for optimal performance.
     /// </remarks>
     public virtual void SimulationUpdate(BepuSimulation sim, float simTimeStep)
     {
