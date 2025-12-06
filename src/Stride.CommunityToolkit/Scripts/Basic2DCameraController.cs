@@ -387,11 +387,11 @@ public class Basic2DCameraController : SyncScript
     {
         var zoomDelta = Input.MouseWheelDelta;
 
-        if (zoomDelta != 0)
-        {
-            var newSize = _camera!.OrthographicSize - zoomDelta * ZoomSpeed * Game.DeltaTime();
-            _camera.OrthographicSize = Math.Clamp(newSize, MinOrthographicSize, MaxOrthographicSize);
-        }
+        if (zoomDelta == 0) return;
+
+        var newSize = _camera!.OrthographicSize - zoomDelta * ZoomSpeed * Game.DeltaTime() * SpeedFactor;
+
+        _camera.OrthographicSize = Math.Clamp(newSize, MinOrthographicSize, MaxOrthographicSize);
     }
 
     /// <summary>
