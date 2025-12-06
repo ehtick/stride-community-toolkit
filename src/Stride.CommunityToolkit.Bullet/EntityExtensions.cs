@@ -107,6 +107,7 @@ public static class EntityExtensions
 
         if (!options.IncludeCollider)
         {
+            // Should we add the PhysicsComponent even if no collider is included?
             entity.Add(options.PhysicsComponent);
 
             return entity;
