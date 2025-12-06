@@ -56,7 +56,7 @@ public static class EntityExtensions
     /// <returns>The entity with the Bepu 3D physics components added.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="entity"/> is null.</exception>
     /// <exception cref="InvalidOperationException">Thrown when the entity does not have a <see cref="ModelComponent"/> with a valid model, or when an unsupported <see cref="PrimitiveModelType"/> is specified.</exception>
-    public static Entity AddBepuPhysics(this Entity entity, PrimitiveModelType type, Bepu3DPhysicsOptions? options = null)
+    public static Entity AddBepu3DPhysics(this Entity entity, PrimitiveModelType type, Bepu3DPhysicsOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
@@ -69,6 +69,7 @@ public static class EntityExtensions
 
         if (!options.IncludeCollider)
         {
+            // Should we add the CollidableComponent even if no collider is included?
             entity.Add(options.Component);
 
             return entity;

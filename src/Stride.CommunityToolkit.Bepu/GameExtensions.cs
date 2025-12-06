@@ -109,7 +109,7 @@ public static class GameExtensions
 
         var entity = game.Create3DPrimitive(type, (Primitive3DEntityOptions)options);
 
-        entity.AddBepuPhysics(type, options);
+        entity.AddBepu3DPhysics(type, options);
 
         return entity;
     }
