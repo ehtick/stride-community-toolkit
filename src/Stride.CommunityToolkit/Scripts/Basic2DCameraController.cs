@@ -166,13 +166,17 @@ public class Basic2DCameraController : SyncScript
     /// </remarks>
     public MouseButton MouseDragButton { get; set; } = MouseButton.Middle;
 
+    /// <summary>
+    /// Gets or sets whether on-screen camera instructions are displayed.
+    /// </summary>
+    public bool ShowInstructions { get; set; } = true;
+
     private CameraComponent? _camera;
     private Vector3 _targetPosition;
     private Vector2? _lastMousePosition;
     private float _defaultZ = 0;
 
     private DebugTextPrinter? _instructions;
-    private bool _showInstructions = true;
 
     /// <summary>
     /// Initializes the camera controller by setting up the instruction overlay and caching the initial state.
@@ -264,7 +268,7 @@ public class Basic2DCameraController : SyncScript
         if (EnableBounds)
             ApplyCameraBounds();
 
-        if (_showInstructions)
+        if (ShowInstructions)
         {
             _instructions?.UpdateScreenSize(GetScreenSize());
             _instructions?.Print();
@@ -286,7 +290,7 @@ public class Basic2DCameraController : SyncScript
         if (!Input.HasKeyboard) return;
 
         if (Input.IsKeyPressed(Keys.F2))
-            _showInstructions = !_showInstructions;
+            ShowInstructions = !ShowInstructions;
 
         if (Input.IsKeyPressed(Keys.F3))
             _instructions?.ChangeStartPosition();
