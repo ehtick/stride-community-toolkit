@@ -1,3 +1,4 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.0.11217.181
@@ -23,6 +24,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example01_Basic3DScene", "examples\code-only\Example01_Basic3DScene\Example01_Basic3DScene.csproj", "{D18A062B-5FCC-4ED2-879B-C4FDD9B8E295}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{30457B66-9E10-4290-9744-D0079DE0448B}"
+	ProjectSection(SolutionItems) = preProject
+		examples\code-only\README.md = examples\code-only\README.md
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example02_GiveMeACube", "examples\code-only\Example02_GiveMeACube\Example02_GiveMeACube.csproj", "{624182EB-20D8-4176-9704-02BD2B6EA6ED}"
 EndProject
@@ -159,6 +163,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example01_Basic2DScene_Primitives", "examples\code-only\Example01_Basic2DScene_Primitives\Example01_Basic2DScene_Primitives.csproj", "{8EA86428-6399-499E-8F12-02FDC11B6638}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example01_Basic2DScene_DebugRender", "examples\code-only\Example01_Basic2DScene_DebugRender\Example01_Basic2DScene_DebugRender.csproj", "{35DF7999-AAEC-42C3-9A6B-545F6407B148}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BepuSample.Game", "..\stride\samples\Physics\BepuSample\BepuSample.Game\BepuSample.Game.csproj", "{49EDC062-B6FF-456C-A3E5-EC3DF1803E0A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -424,7 +430,7 @@ Global
 		{2682008E-BACB-FB82-1E0A-AED28A8927F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2682008E-BACB-FB82-1E0A-AED28A8927F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2682008E-BACB-FB82-1E0A-AED28A8927F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2682008E-BACB-FB82-1E0A-AED28A8927F7}.Release|Any CPU.Build.0 = Release|Any CPU		
+		{2682008E-BACB-FB82-1E0A-AED28A8927F7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8EA86428-6399-499E-8F12-02FDC11B6638}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8EA86428-6399-499E-8F12-02FDC11B6638}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8EA86428-6399-499E-8F12-02FDC11B6638}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -433,6 +439,10 @@ Global
 		{35DF7999-AAEC-42C3-9A6B-545F6407B148}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35DF7999-AAEC-42C3-9A6B-545F6407B148}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35DF7999-AAEC-42C3-9A6B-545F6407B148}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49EDC062-B6FF-456C-A3E5-EC3DF1803E0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49EDC062-B6FF-456C-A3E5-EC3DF1803E0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49EDC062-B6FF-456C-A3E5-EC3DF1803E0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49EDC062-B6FF-456C-A3E5-EC3DF1803E0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -490,7 +500,7 @@ Global
 		{D35DDEAD-4AE7-4979-BFB4-99A2BCF4A235} = {30457B66-9E10-4290-9744-D0079DE0448B}
 		{4946D990-30E5-0095-C15C-C476A0D173E6} = {84A4C740-796B-49B0-A9B9-79F4F438690F}
 		{564A9194-68DE-F796-5D4A-537C18B2E2B0} = {BAB4C3F1-1593-496C-AACC-A5C8A9E8F145}
-		{2682008E-BACB-FB82-1E0A-AED28A8927F7} = {30457B66-9E10-4290-9744-D0079DE0448B}		
+		{2682008E-BACB-FB82-1E0A-AED28A8927F7} = {30457B66-9E10-4290-9744-D0079DE0448B}
 		{8EA86428-6399-499E-8F12-02FDC11B6638} = {30457B66-9E10-4290-9744-D0079DE0448B}
 		{35DF7999-AAEC-42C3-9A6B-545F6407B148} = {30457B66-9E10-4290-9744-D0079DE0448B}
 	EndGlobalSection
