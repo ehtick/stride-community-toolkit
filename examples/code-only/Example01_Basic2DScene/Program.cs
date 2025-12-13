@@ -33,24 +33,24 @@ description:
     Vytvoření minimální 2D scény pomocí nástrojů sady a umístění jediné kapsle jako primitivního tvaru.
     Ukazuje vytvoření entity, základní umístění a připojení entity k scéně.
 concepts:
-    - Creating a 2D primitive (Capsule)
-    - Positioning an entity with Transform.Position
-    - Adding entities to a Scene (rootScene)
-    - "Using helpers: SetupBase2DScene"
+  - Creating a 2D primitive (Capsule)
+  - Positioning an entity with Transform.Position
+  - Adding entities to a Scene (rootScene)
+  - "Using helpers: SetupBase2DScene"
 related:
-    - Example02_GiveMeACube
-    - Example01_Basic2DScene_Primitives
-    - Example01_Material
+  - Example02_GiveMeACube
+  - Example01_Basic2DScene_Primitives
+  - Example01_Material
 tags:
-    - 2D
-    - Bepu
-    - Shapes
-    - Primitive
-    - Capsule
-    - Scene Setup
-    - Transform
-    - Position
-    - Getting Started
+  - 2D
+  - Bepu
+  - Shapes
+  - Primitive
+  - Capsule
+  - Scene Setup
+  - Transform
+  - Position
+  - Getting Started
 order: 1
 enabled: true
 created: 2025-11-30
