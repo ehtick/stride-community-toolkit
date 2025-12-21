@@ -164,8 +164,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example01_Basic2DScene_Prim
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example01_Basic2DScene_DebugRender", "examples\code-only\Example01_Basic2DScene_DebugRender\Example01_Basic2DScene_DebugRender.csproj", "{35DF7999-AAEC-42C3-9A6B-545F6407B148}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BepuSample.Game", "..\stride\samples\Physics\BepuSample\BepuSample.Game\BepuSample.Game.csproj", "{49EDC062-B6FF-456C-A3E5-EC3DF1803E0A}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -439,10 +437,6 @@ Global
 		{35DF7999-AAEC-42C3-9A6B-545F6407B148}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35DF7999-AAEC-42C3-9A6B-545F6407B148}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35DF7999-AAEC-42C3-9A6B-545F6407B148}.Release|Any CPU.Build.0 = Release|Any CPU
-		{49EDC062-B6FF-456C-A3E5-EC3DF1803E0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{49EDC062-B6FF-456C-A3E5-EC3DF1803E0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{49EDC062-B6FF-456C-A3E5-EC3DF1803E0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{49EDC062-B6FF-456C-A3E5-EC3DF1803E0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
