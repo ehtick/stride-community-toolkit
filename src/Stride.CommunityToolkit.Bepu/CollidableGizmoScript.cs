@@ -44,7 +44,6 @@ public class CollidableGizmoScript : SyncScript
         if (Visible)
         {
             CreateGizmos();
-
             ApplyGizmoEmissiveColor();
         }
     }
@@ -70,9 +69,7 @@ public class CollidableGizmoScript : SyncScript
         if (!Visible) return;
 
         foreach (var gizmo in _gizmos)
-        {
             gizmo.Update();
-        }
     }
 
     private void ApplyGizmoEmissiveColor()
@@ -99,8 +96,8 @@ public class CollidableGizmoScript : SyncScript
         _gizmos.Clear();
 
         var scene = Entity?.Scene ?? SceneSystem?.SceneInstance?.RootScene;
-        if (scene is null)
-            return;
+
+        if (scene is null) return;
 
         foreach (var component in GetAllComponents<CollidableComponent>(scene))
         {
@@ -121,9 +118,7 @@ public class CollidableGizmoScript : SyncScript
     private void RemoveGizmos()
     {
         foreach (var gizmo in _gizmos)
-        {
             gizmo.Dispose();
-        }
 
         _gizmos.Clear();
     }
@@ -135,7 +130,8 @@ public class CollidableGizmoScript : SyncScript
         {
             foreach (var component in entity.Components)
             {
-                if (component is T typed) yield return typed;
+                if (component is T typed)
+                    yield return typed;
             }
         }
     }
@@ -147,9 +143,7 @@ public class CollidableGizmoScript : SyncScript
             yield return entity;
 
             foreach (var child in GetAllEntities(entity.GetChildren()))
-            {
                 yield return child;
-            }
         }
     }
 }

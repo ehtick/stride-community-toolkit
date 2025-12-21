@@ -57,7 +57,7 @@ Examples are discovered by scanning `examples/code-only/` for projects with `<Ex
 
 ## Technical Details
 
-- **Framework**: .NET 8
+- **Framework**: .NET 10
 - **UI**: Avalonia 11.3.7
 - **Pattern**: MVVM-lite (no formal framework)
 - **Process Management**: Spawns examples as separate processes

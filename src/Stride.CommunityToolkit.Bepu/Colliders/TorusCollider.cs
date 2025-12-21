@@ -36,8 +36,8 @@ public static class TorusCollider
     /// </returns>
     public static ConvexHullCollider Create(float? majorRadius, float? minorRadius)
     {
-        var validatedMajorRadius = 1f;
-        var validatedMinorRadius = 0.5f;
+        float validatedMajorRadius;
+        float validatedMinorRadius;
 
         if (majorRadius is null)
         {

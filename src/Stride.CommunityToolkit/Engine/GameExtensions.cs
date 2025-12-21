@@ -102,7 +102,7 @@ public static class GameExtensions
     /// <param name="clearColor">The color used to clear the screen. Defaults to <see cref="Color.CornflowerBlue"/> if not specified.</param>
     public static void SetupBase2D(this Game game, Color? clearColor = null)
     {
-        game.Add2DGraphicsCompositor(clearColor);
+        game.Add2DGraphicsCompositor(clearColor).AddUIStage();
         game.Add2DCamera();
     }
 
@@ -157,42 +157,6 @@ public static class GameExtensions
         return graphicsCompositor;
     }
 
-    /// <summary>
-    /// Creates a material with flat colors that aren't affected by lighting, ideal for 2D rendering.
-    /// </summary>
-    /// <param name="game">The game instance used to access the graphics device.</param>
-    /// <param name="color">The color of the material. Uses white if not specified.</param>
-    /// <returns>A new material instance with flat coloring unaffected by lighting.</returns>
-    public static Material CreateFlatMaterial(this IGame game, Color? color = null)
-    {
-        var materialColor = color ?? Color.White;
-
-        var materialDescription = new MaterialDescriptor
-        {
-            Attributes =
-        {
-            // Add diffuse color
-            Diffuse = new MaterialDiffuseMapFeature(new ComputeColor(materialColor))
-            {
-                // The Enabled property controls whether the feature affects rendering
-                Enabled = true
-            },
-
-            // Use a simple diffuse model, we'll disable lighting with lighting features removal
-            DiffuseModel = new MaterialDiffuseLambertModelFeature(),
-
-            // Disable specular reflections completely
-            Specular = null,
-            SpecularModel = null,
-
-            // Add emissive for consistent color rendering regardless of lighting
-            Emissive = new MaterialEmissiveMapFeature(new ComputeColor(materialColor))
-        }
-        };
-
-        return Material.New(game.GraphicsDevice, materialDescription);
-    }
-
     // Helper method to remove lighting features from a GraphicsCompositor
     private static void RemoveLightingFeatures(GraphicsCompositor compositor)
     {
@@ -218,9 +182,7 @@ public static class GameExtensions
 
                 // Remove all identified features
                 foreach (var feature in featuresToRemove)
-                {
                     meshRenderFeature.RenderFeatures.Remove(feature);
-                }
             }
         }
     }
@@ -258,14 +220,14 @@ public static class GameExtensions
     /// The camera entity will be created with the specified projection mode and added to the game's root scene. It will also be assigned to the first available camera slot in the GraphicsCompositor.
     /// </remarks>
     /// <exception cref="InvalidOperationException">Thrown if the GraphicsCompositor does not have any camera slots defined.</exception>
-    public static Entity Add3DCamera(this Game game, string? cameraName = CameraDefaults.MainCameraName, Vector3? initialPosition = null, Vector3? initialRotation = null, CameraProjectionMode projectionMode = CameraProjectionMode.Perspective)
+    public static Entity Add3DCamera(this Game game, string? cameraName = CameraDefaults.MainCameraName,
+        Vector3? initialPosition = null, Vector3? initialRotation = null,
+        CameraProjectionMode projectionMode = CameraProjectionMode.Perspective)
     {
         var cameras = game.SceneSystem.GraphicsCompositor.Cameras;
 
         if (cameras.Count == 0)
-        {
             throw new InvalidOperationException(NoCameraSlotMessage);
-        }
 
         var cameraSlot = cameras[0];
 
@@ -279,7 +241,7 @@ public static class GameExtensions
             new CameraComponent
             {
                 Projection = projectionMode,
-                Slot =  cameras[0].ToSlotId(),
+                Slot = cameras[0].ToSlotId(),
             }
         };
 
@@ -307,12 +269,7 @@ public static class GameExtensions
     /// <exception cref="InvalidOperationException">Thrown if no camera entity with the specified name exists in the current scene.</exception>
     public static Entity Add2DCameraController(this Game game, string? cameraName = CameraDefaults.MainCameraName)
     {
-        var cameraEntity = game.SceneSystem.SceneInstance.RootScene.Entities.FirstOrDefault(w => w.Name == cameraName);
-
-        if (cameraEntity is null)
-        {
-            throw new InvalidOperationException($"Cannot add 2D camera controller: No camera entity found with the name '{cameraName}'.");
-        }
+        var cameraEntity = GetCameraEntity(game, cameraName);
 
         cameraEntity.Add2DCameraController();
 
@@ -328,14 +285,10 @@ public static class GameExtensions
     /// used.</param>
     /// <returns>The camera entity to which the 3D camera controller was added.</returns>
     /// <exception cref="InvalidOperationException">Thrown if no camera entity with the specified name exists in the current scene.</exception>
-    public static Entity Add3DCameraController(this Game game, DisplayPosition displayPosition = DisplayPosition.TopRight, string? cameraName = CameraDefaults.MainCameraName)
+    public static Entity Add3DCameraController(this Game game,
+        DisplayPosition displayPosition = DisplayPosition.TopRight, string? cameraName = CameraDefaults.MainCameraName)
     {
-        var cameraEntity = game.SceneSystem.SceneInstance.RootScene.Entities.FirstOrDefault(w => w.Name == cameraName);
-
-        if (cameraEntity is null)
-        {
-            throw new InvalidOperationException($"Cannot add 3D camera controller: No camera entity found with the name '{cameraName}'.");
-        }
+        var cameraEntity = GetCameraEntity(game, cameraName);
 
         cameraEntity.Add3DCameraController(displayPosition);
 
@@ -366,7 +319,7 @@ public static class GameExtensions
         {
             new LightComponent
             {
-                Intensity =  20.0f,
+                Intensity = 20.0f,
                 Type = new LightDirectional
                 {
                     Color = new ColorRgbProvider(Color.White),
@@ -383,7 +336,8 @@ public static class GameExtensions
         };
 
         entity.Transform.Position = new Vector3(0, 2.0f, 0);
-        entity.Transform.Rotation = Quaternion.RotationX(MathUtil.DegreesToRadians(-30.0f)) * Quaternion.RotationY(MathUtil.DegreesToRadians(-180.0f));
+        entity.Transform.Rotation = Quaternion.RotationX(MathUtil.DegreesToRadians(-30.0f)) *
+                                    Quaternion.RotationY(MathUtil.DegreesToRadians(-180.0f));
 
         entity.Scene = game.SceneSystem.SceneInstance.RootScene;
 
@@ -404,36 +358,32 @@ public static class GameExtensions
     {
         var position = new Vector3(7f, 2f, 0);
 
-        CreateLightEntity(GetLight(), intensity, position);
-
-        CreateLightEntity(GetLight(), intensity, position, Quaternion.RotationAxis(Vector3.UnitX, MathUtil.DegreesToRadians(180)));
-
-        CreateLightEntity(GetLight(), intensity, position, Quaternion.RotationAxis(Vector3.UnitX, MathUtil.DegreesToRadians(270)));
-
-        CreateLightEntity(GetLight(), intensity, position, Quaternion.RotationAxis(Vector3.UnitY, MathUtil.DegreesToRadians(90)));
-
-        CreateLightEntity(GetLight(), intensity, position, Quaternion.RotationAxis(Vector3.UnitY, MathUtil.DegreesToRadians(270)));
-
-        LightDirectional GetLight() => new() { Color = GetColor(Color.White) };
-
-        static ColorRgbProvider GetColor(Color color) => new(color);
-
-        void CreateLightEntity(ILight light, float intensity, Vector3 position, Quaternion? rotation = null)
+        var rotations = new[]
         {
-            var entity = new Entity() {
-                new LightComponent {
-                    Intensity =  intensity,
-                    Type = light
-                }};
+            Quaternion.Identity,
+            Quaternion.RotationAxis(Vector3.UnitX, MathUtil.DegreesToRadians(180)),
+            Quaternion.RotationAxis(Vector3.UnitX, MathUtil.DegreesToRadians(270)),
+            Quaternion.RotationAxis(Vector3.UnitY, MathUtil.DegreesToRadians(90)),
+            Quaternion.RotationAxis(Vector3.UnitY, MathUtil.DegreesToRadians(270))
+        };
+
+        foreach (var rotation in rotations)
+        {
+            var entity = new Entity
+            {
+                new LightComponent
+                {
+                    Intensity = intensity,
+                    Type = new LightDirectional { Color = new ColorRgbProvider(Color.White) }
+                }
+            };
 
             entity.Transform.Position = position;
-            entity.Transform.Rotation = rotation ?? Quaternion.Identity;
+            entity.Transform.Rotation = rotation;
             entity.Scene = game.SceneSystem.SceneInstance.RootScene;
 
             if (showLightGizmo)
-            {
                 entity.AddLightDirectionalGizmo(game.GraphicsDevice);
-            }
         }
     }
 
@@ -470,7 +420,7 @@ public static class GameExtensions
     }
 
     /// <summary>
-    /// Adds a profiler to the game, which can be toggled on/off with Left Shift + Left Ctrl + P, and provides other keyboard shortcuts.
+    /// Adds a profiler to the game, which can be toggled on/off with Left Shift + Left Ctrl + P and provides other keyboard shortcuts.
     /// Changing the filtering mode with F1, altering the sorting mode with F2, navigating result pages with F3 and F4,
     /// and adjusting the refresh interval with the plus and minus keys.
     /// </summary>
@@ -479,7 +429,7 @@ public static class GameExtensions
     /// <returns>The entity to which the <see cref="GameProfiler"/> script was attached.</returns>
     /// <remarks>
     /// This extension method creates an entity and attaches a <see cref="GameProfiler"/> script to it, enabling in-game profiling.
-    /// The profiler's behaviour can be interacted with using various keyboard shortcuts as described in the <see cref="GameProfiler"/> class.
+    /// The profiler's behavior can be interacted with using various keyboard shortcuts as described in the <see cref="GameProfiler"/> class.
     /// </remarks>
     public static Entity AddProfiler(this Game game, string? entityName = "Game Profiler")
     {
@@ -503,18 +453,42 @@ public static class GameExtensions
         var materialDescription = new MaterialDescriptor
         {
             Attributes =
-                {
-                    Diffuse = new MaterialDiffuseMapFeature(new ComputeColor(color ?? GameDefaults.DefaultMaterialColor)),
-                    DiffuseModel = new MaterialDiffuseLambertModelFeature(),
-                    Specular =  new MaterialMetalnessMapFeature(new ComputeFloat(specular)),
-                    SpecularModel = new MaterialSpecularMicrofacetModelFeature(),
-                    MicroSurface = new MaterialGlossinessMapFeature(new ComputeFloat(microSurface))
-                }
+            {
+                Diffuse = new MaterialDiffuseMapFeature(new ComputeColor(color ?? GameDefaults.DefaultMaterialColor)),
+                DiffuseModel = new MaterialDiffuseLambertModelFeature(),
+                Specular = new MaterialMetalnessMapFeature(new ComputeFloat(specular)),
+                SpecularModel = new MaterialSpecularMicrofacetModelFeature(),
+                MicroSurface = new MaterialGlossinessMapFeature(new ComputeFloat(microSurface))
+            }
         };
 
         return Material.New(game.GraphicsDevice, materialDescription);
         //options.Size /= 2;
+    }
 
+    /// <summary>
+    /// Creates a material with flat colors ideal for 2D rendering, using emissive color unaffected by lighting.
+    /// </summary>
+    /// <param name="game">The game instance used to access the graphics device.</param>
+    /// <param name="color">The color of the material, including alpha. Uses white if not specified.</param>
+    /// <returns>A new material instance with flat coloring.</returns>
+    public static Material CreateFlatMaterial(this IGame game, Color? color = null)
+    {
+        var materialColor = color ?? Color.White;
+
+        var materialDescription = new MaterialDescriptor
+        {
+            Attributes =
+            {
+                Emissive = new MaterialEmissiveMapFeature(new ComputeColor(materialColor)),
+                Diffuse = new MaterialDiffuseMapFeature(new ComputeColor(materialColor)),
+                DiffuseModel = new MaterialDiffuseLambertModelFeature(),
+                Specular = null,
+                SpecularModel = null
+            }
+        };
+
+        return Material.New(game.GraphicsDevice, materialDescription);
     }
 
     /// <summary>
@@ -525,11 +499,10 @@ public static class GameExtensions
     /// <param name="fileType"></param>
     public static void TakeScreenShot(this IGame game, string fileName, ImageFileType fileType = ImageFileType.Png)
     {
-        using (var stream = File.Create(fileName))
-        {
-            var commandList = game.GraphicsContext.CommandList;
-            commandList.RenderTarget.Save(commandList, stream, fileType);
-        }
+        using var stream = File.Create(fileName);
+
+        var commandList = game.GraphicsContext.CommandList;
+        commandList.RenderTarget.Save(commandList, stream, fileType);
     }
 
     /// <summary>
@@ -543,7 +516,8 @@ public static class GameExtensions
     {
         ArgumentNullException.ThrowIfNull(renderer);
 
-        var graphicsCompositor = game.SceneSystem.GraphicsCompositor ?? throw new InvalidOperationException(GameDefaults.GraphicsCompositorNotSet);
+        var graphicsCompositor = game.SceneSystem.GraphicsCompositor ??
+                                 throw new InvalidOperationException(GameDefaults.GraphicsCompositorNotSet);
 
         graphicsCompositor.AddSceneRenderer(renderer);
     }
@@ -568,5 +542,18 @@ public static class GameExtensions
     public static void AddParticleRenderer(this Game game)
     {
         game.SceneSystem.GraphicsCompositor.AddParticleStagesAndFeatures();
+    }
+
+    private static Entity GetCameraEntity(Game game, string? cameraName)
+    {
+        var cameraEntity = game.SceneSystem.SceneInstance.RootScene.Entities.FirstOrDefault(w => w.Name == cameraName);
+
+        if (cameraEntity is null)
+        {
+            throw new InvalidOperationException(
+                $"Cannot add camera controller: No camera entity found with the name '{cameraName}'.");
+        }
+
+        return cameraEntity;
     }
 }

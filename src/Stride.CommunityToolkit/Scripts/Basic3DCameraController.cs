@@ -8,7 +8,7 @@ namespace Stride.CommunityToolkit.Scripts;
 /// A script that allows to move and rotate an entity through keyboard, mouse and touch input to provide basic camera navigation.
 /// </summary>
 /// <remarks>
-/// The entity can be moved using W, A, S, D, Q and E, arrow keys, a gamepad's left stick or dragging/scaling using multi-touch.
+/// The entity can be moved using W, A, S, D, Q and E, arrow keys, a gamepad's left stick or dragging/scaling using multitouch.
 /// Rotation is achieved using the Numpad, the mouse while holding the right mouse button, a gamepad's right stick, or dragging using single-touch.
 ///
 /// This functionality is inspired by Stride.Assets.Presentation, Assets->Scripts->Camera
@@ -79,7 +79,7 @@ public class Basic3DCameraController : SyncScript
     public Vector2 TouchRotationSpeed { get; set; } = new Vector2(1.0f, 0.7f);
 
     /// <summary>
-    /// Initializes help overlay, caches default transform and configures gesture recognizers.
+    /// Initializes help overlay, caches default transform, and configures gesture recognizers.
     /// </summary>
     public override void Start()
     {
@@ -161,14 +161,10 @@ public class Basic3DCameraController : SyncScript
         if (!Input.HasKeyboard) return;
 
         if (Input.IsKeyPressed(Keys.F2))
-        {
             _showInstructions = !_showInstructions;
-        }
 
         if (Input.IsKeyPressed(Keys.F3))
-        {
             _instructions?.ChangeStartPosition();
-        }
     }
 
     private void KeyboardAndGamePadBasedMovement(float deltaTime)
@@ -178,9 +174,9 @@ public class Basic3DCameraController : SyncScript
         // or frame it is equal to 1/60, that means that the previous update ran 1/60 of a second ago
         // and the next will, in most cases, run in around 1/60 of a second from now. Knowing that,
         // we can move 1/60 of a unit on this frame so that in around 60 frames(1 second)
-        // we will have travelled one whole unit in a second.
-        // If you don't use deltaTime your speed will be dependant on the amount of frames rendered
-        // on screen which often are inconsistent, meaning that if the player has performance issues,
+        // we will have traveled one whole unit in a second.
+        // If you don't use deltaTime, your speed will be dependent on the number of frames rendered
+        // on screen, which often are inconsistent, meaning that if the player has performance issues,
         // this entity will move around slower.
 
         var speed = 1f * deltaTime;
@@ -190,7 +186,7 @@ public class Basic3DCameraController : SyncScript
         if (Gamepad && Input.HasGamePad)
         {
             GamePadState padState = Input.DefaultGamePad.State;
-            // LeftThumb can be positive or negative on both axis (pushed to the right or to the left)
+            // LeftThumb can be positive or negative on both axes (pushed to the right or to the left)
             movementDirection.Z += padState.LeftThumb.Y;
             movementDirection.X += padState.LeftThumb.X;
 
@@ -199,7 +195,7 @@ public class Basic3DCameraController : SyncScript
             movementDirection.Y += padState.RightTrigger;
 
             // Increase speed when pressing A, LeftShoulder or RightShoulder
-            // Here:does the enum flag 'Buttons' has one of the flag ('A','LeftShoulder' or 'RightShoulder') set
+            // Here:does the enum flag 'Buttons' have one of the flag ('A','LeftShoulder' or 'RightShoulder') set
             if ((padState.Buttons & (GamePadButton.A | GamePadButton.LeftShoulder | GamePadButton.RightShoulder)) != 0)
                 speed *= SpeedFactor;
         }
@@ -233,7 +229,7 @@ public class Basic3DCameraController : SyncScript
             // will be greater than one (vector(1, 1) is farther away from zero than vector(0, 1)),
             // normalizing the vector ensures that whichever direction the player chooses, that direction
             // will always be at most one unit in length.
-            // We're keeping dir as is if isn't longer than one to retain sub unit movement:
+            // We're keeping dir as is if it isn't longer than one to retain subunit movement:
             // a stick not entirely pushed forward should make the entity move slower.
             if (movementDirection.Length() > 1f)
                 movementDirection = Vector3.Normalize(movementDirection);
@@ -286,13 +282,13 @@ public class Basic3DCameraController : SyncScript
     private void MouseMovementAndGestures()
     {
         // This type of input should not use delta time at all, they already are frame-rate independent.
-        // Lets say that you are going to move your finger/mouse for one second over 40 units, it doesn't matter
-        // the amount of frames occurring within that time frame, each frame will receive the right amount of delta:
+        // Let's say that you are going to move your finger/mouse for one second over 40 units, it doesn't matter
+        // the number of frames occurring within that time frame, each frame will receive the right amount of delta:
         // a quarter of a second -> 10 units, half a second -> 20 units, one second -> your 40 units.
 
         if (Input.HasMouse)
         {
-            // Rotate with mouse
+            // Rotate with a mouse
             if (Input.IsMouseButtonDown(MouseButton.Right))
             {
                 Input.LockMousePosition();
@@ -321,7 +317,7 @@ public class Basic3DCameraController : SyncScript
                     _pitch = -dragDistance.Y * TouchRotationSpeed.Y;
                     break;
 
-                // Move along z-axis by scaling and in xy-plane by multi-touch dragging
+                // Move along z-axis by scaling and in xy-plane by multitouch dragging
                 case GestureType.Composite:
                     var composite = (GestureEventComposite)gestureEvent;
                     _translation.X = -composite.DeltaTranslation.X * TouchMovementSpeed.X;
@@ -361,7 +357,7 @@ public class Basic3DCameraController : SyncScript
     }
 
     /// <summary>
-    /// Reset camera to default position and orthographic size when 'H' key is pressed
+    /// Reset camera to default position and orthographic size when the 'H' key is pressed
     /// </summary>
     private void ResetCameraToDefault()
     {

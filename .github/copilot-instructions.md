@@ -13,7 +13,7 @@ These repository instructions guide GitHub Copilot (and similar AI assistants) t
 - Prefer well-documented, core, and recently updated toolkit helpers over unverified examples.
 
 ## Project overview
-- A collection of C# helpers and extensions for the [Stride Game Engine](https://www.stride3d.net/), primarily targeting **.NET 8** (some projects may also multi-target newer frameworks such as .NET 9).
+- A collection of C# helpers and extensions for the [Stride Game Engine](https://www.stride3d.net/), primarily targeting **.NET 10** (some projects may also multi-target newer frameworks).
 - Provides library projects, code-only examples, snippet examples, and documentation to simplify Stride game development.
 - F# and VB.NET examples are showcase-only (not the primary focus).
 - Uses the latest Stride version with nullable reference types enabled.
@@ -35,9 +35,13 @@ These repository instructions guide GitHub Copilot (and similar AI assistants) t
   - **Stride.CommunityToolkit.Bullet**: Bullet physics integration (legacy / transitional, pending deprecation)
   - **Stride.CommunityToolkit.DebugShapes**: Debug visualization tools
   - **Stride.CommunityToolkit.ImGui**: ImGui integration
+  - **Stride.CommunityToolkit.ImGuiNet**: ImGui.NET bindings and helpers
+  - **Stride.CommunityToolkit.Linux**: Linux-specific features
   - **Stride.CommunityToolkit.Skyboxes**: Skybox utilities
   - **Stride.CommunityToolkit.Windows**: Windows-specific features
 - `examples/`: Code-only and snippet example projects (C#, F#, VB)
+- `benchmarks/`: BenchmarkDotNet-based performance tests (primary suite)
+- `tests/`: Unit and regression test projects (xUnit, targeting net10.0)
 - `docs/`: DocFX sources (manuals, API reference, contributing)
 - `.github/`: GitHub workflows, release metadata, automation, and this instruction file
 
@@ -63,21 +67,23 @@ Guidelines:
 ```csharp
 using var game = new Game();
 
-game.Run(start: (Scene rootScene) =>
+game.Run(start: Start);
+
+void Start(Scene rootScene)
 {
-    game.SetupBase3DScene(); // Camera, lighting, ground
+    game.SetupBase3DScene();
     game.AddSkybox();
 
     var entity = game.Create3DPrimitive(PrimitiveModelType.Capsule);
     entity.Transform.Position = new Vector3(0, 8, 0);
     entity.Scene = rootScene;
-});
+}
 ```
 
 ## Coding Style & Conventions
 - Use latest C# features (file-scoped namespaces, target-typed `new`, pattern matching, spans where beneficial, primary ctors where suitable).
 - Keep nullable-reference warnings at zero.
-- Public APIs: include complete XML docs (`<summary>`, `<param>`, `<returns>`, `<example>` when useful).
+- Public APIs: include complete XML docs (`<summary>`, `<param>`, `<returns>`, `<example>` when useful) including top level classes.
 - Naming: `Stride.CommunityToolkit.<LibraryName>` for new libs; PascalCase for types and methods; camelCase for parameters.
 - Terminology / capitalization: Use “Bepu” (capital B only) in identifiers and XML docs; never “BEPU” or “bepu”. Use “Bullet” (capital B) for Bullet physics.
 - One public type per file; avoid unrelated multi-class files.
@@ -97,7 +103,7 @@ game.Run(start: (Scene rootScene) =>
 - Physics: Do not combine Bepu and Bullet physics components on the same entity.
 - Shaders (*.sdsl): After adding, removing, or changing shader properties, manually regenerate the associated `*.cs` file (remind contributors when shaders are touched).
 - Experimental / provisional APIs: consider marking with an `[Experimental]` attribute (future) or note in the XML summary.
-- Tests: Keep deterministic; avoid relying on real-time frame counts.
+- Tests: Use xUnit under `tests/` targeting net10.0; keep deterministic and avoid relying on real-time frame counts.
 
 ## Documentation guidelines
 - Docs are generated with DocFX from `docs/`.

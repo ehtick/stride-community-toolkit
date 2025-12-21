@@ -52,7 +52,7 @@ public static class ConeCollider
             validatedSize = size.Value;
         }
 
-        var meshData = GeometricPrimitive.Cone.New(radius: validatedSize.X, height: validatedSize.Y, 16);
+        var meshData = GeometricPrimitive.Cone.New(radius: validatedSize.X, height: validatedSize.Y);
 
         return meshData.ToConvexHullCollider();
     }

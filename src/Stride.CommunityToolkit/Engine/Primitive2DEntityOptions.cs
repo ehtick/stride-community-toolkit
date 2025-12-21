@@ -13,7 +13,11 @@ public class Primitive2DEntityOptions : PrimitiveEntityOptions
     /// Gets or sets the logical width/height for the generated 2D primitive. When <c>null</c> a shape‑appropriate
     /// default is chosen by the creation helper (e.g. unit quad).
     /// </summary>
-    /// <remarks>X = width, Y = height.</remarks>
+    /// <remarks>
+    /// The meaning of <see cref="Size"/> components depends on the primitive type being created:
+    /// <para /> - For rectangular shapes: X = width, Y = height.
+    /// <para /> - For cylindrical shapes: X = radius, Y = length.
+    /// </remarks>
     public Vector2? Size { get; set; }
 
     /// <summary>

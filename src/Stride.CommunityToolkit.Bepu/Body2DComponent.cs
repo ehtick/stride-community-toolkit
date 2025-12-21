@@ -20,12 +20,18 @@ namespace Stride.CommunityToolkit.Bepu;
 public class Body2DComponent : BodyComponent, ISimulationUpdate
 {
     /// <summary>
+    /// Z-position error threshold above which velocity correction is applied. Default is 0.001f (1mm).
+    /// </summary>
+    /// <remarks>
+    /// Smaller values provide tighter constraint but may prevent sleeping. Increase if bodies jitter or fail to sleep.
+    /// </remarks>
+    public float ZTolerance { get; set; } = 0.001f;
+
+    /// <summary>
     /// Creates a new <see cref="Body2DComponent"/>. Interpolation is enabled by default.
     /// </summary>
     public Body2DComponent()
-    {
-        InterpolationMode = BepuPhysics.Definitions.InterpolationMode.Interpolated;
-    }
+        => InterpolationMode = BepuPhysics.Definitions.InterpolationMode.Interpolated;
 
     /// <inheritdoc />
     /// <remarks>
@@ -49,27 +55,46 @@ public class Body2DComponent : BodyComponent, ISimulationUpdate
         BodyInertia = inertia;
 
         // Hulls tend to create energetic corrections in dense piles; tame it slightly.
-        if (HasConvexHull(Collider))
-        {
-            MaximumRecoveryVelocity = MathF.Min(MaximumRecoveryVelocity, 1.5f);
-            SpringDampingRatio = MathF.Max(SpringDampingRatio, 1f);
-            SpringFrequency = MathF.Min(SpringFrequency, 30f);
-        }
+        if (!HasConvexHull(Collider)) return;
+
+        MaximumRecoveryVelocity = MathF.Min(MaximumRecoveryVelocity, 1.5f);
+        SpringDampingRatio = MathF.Max(SpringDampingRatio, 1f);
+        SpringFrequency = MathF.Min(SpringFrequency, 30f);
     }
 
     /// <summary>
     /// Returns true if the collider hierarchy contains at least one <see cref="ConvexHullCollider"/>.
     /// </summary>
-    private static bool HasConvexHull(ICollider? collider)
+    private static bool HasConvexHull(object? collider)
     {
-        if (collider is null) return false;
-        if (collider is CompoundCollider compound && compound.Colliders is { } list)
+        // Direct check for ConvexHullCollider
+        if (collider is ConvexHullCollider)
+            return true;
+
+        // Recursively check compound colliders
+        if (collider is CompoundCollider { Colliders: { } list })
         {
-            for (int i = 0; i < list.Count; i++)
+            for (var i = 0; i < list.Count; i++)
             {
-                if (list[i] is ConvexHullCollider) return true;
+                if (HasConvexHull(list[i]))
+                    return true;
             }
         }
+
+        return false;
+    }
+
+    private static bool HasConvexHullOld(ICollider? collider)
+    {
+        if (collider is not CompoundCollider { Colliders: { } list })
+            return false;
+
+        for (var i = 0; i < list.Count; i++)
+        {
+            if (list[i] is ConvexHullCollider)
+                return true;
+        }
+
         return false;
     }
 
@@ -79,18 +104,34 @@ public class Body2DComponent : BodyComponent, ISimulationUpdate
     /// <param name="sim">Active simulation.</param>
     /// <param name="simTimeStep">Fixed time step size in seconds.</param>
     /// <remarks>
-    /// Applies a proportional velocity correction on the Z axis to drive the body back to the plane (Z = 0):
-    /// <c>vZ = -Position.Z</c>. This avoids injecting energy while keeping the body constrained to 2D.
+    /// Applies a proportional velocity correction on the Z axis to drive the body back to the plane (Z = 0)
+    /// only when drift exceeds <see cref="ZTolerance"/>. Also zeros out X/Y angular velocities to prevent
+    /// rotation around those axes. This avoids injecting energy while keeping the body constrained to 2D.
+    /// Bodies are allowed to sleep naturally for optimal performance.
     /// </remarks>
     public virtual void SimulationUpdate(BepuSimulation sim, float simTimeStep)
     {
-        // Keep this body active
-        Awake = true;
+        // This was forcing ALL 2D bodies to stay awake every frame, completely disabling Bepu's sleep optimization
+        //Awake = true;
 
-        var current = LinearVelocity;
         var zError = Position.Z;
-        current.Z = -zError; // proportional correction
-        LinearVelocity = current;
+
+        // Only apply Z correction if we've drifted beyond tolerance
+        if (MathF.Abs(zError) > ZTolerance)
+        {
+            var current = LinearVelocity;
+            current.Z = -zError; // proportional correction to drive back to Z=0
+            LinearVelocity = current;
+        }
+
+        // Constrain angular velocity to Z-axis only (remove any X/Y angular drift)
+        var angularVel = AngularVelocity;
+        if (angularVel.X != 0f || angularVel.Y != 0f)
+        {
+            angularVel.X = 0f;
+            angularVel.Y = 0f;
+            AngularVelocity = angularVel;
+        }
     }
 
     /// <summary>

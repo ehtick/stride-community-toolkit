@@ -50,7 +50,7 @@ game.Run(start: (Action<Scene>?)((Scene rootScene) =>
     scene = rootScene;
 
     game.Window.AllowUserResizing = true;
-    game.Window.Title = "2D Example";
+    game.Window.Title = "2D Example with Instancing";
 
     game.SetupBase3DScene();
     game.AddSkybox();
@@ -60,6 +60,10 @@ game.Run(start: (Action<Scene>?)((Scene rootScene) =>
     game.AddProfiler();
     //game.AddAllDirectionLighting(intensity: 5f, true);
     //game.ShowColliders();
+
+    // Enable instancing support by adding InstancingRenderFeature to MeshRenderFeature
+    var meshRenderFeature = (MeshRenderFeature)game.SceneSystem.GraphicsCompositor.RenderFeatures.First(f => f is MeshRenderFeature);
+    meshRenderFeature.RenderFeatures.Add(new InstancingRenderFeature());
 
     _camera = game.SceneSystem.SceneInstance.RootScene.Entities.FirstOrDefault(x => x.Get<CameraComponent>() != null)?.Get<CameraComponent>();
 
@@ -79,7 +83,24 @@ game.Run(start: (Action<Scene>?)((Scene rootScene) =>
     //simulation2DEntity.Scene = rootScene;
     //simulation2DEntity.AddGizmo(game.GraphicsDevice, showAxisName: true);
 
+    //AddPhysicsDebugGizmo(rootScene);
+
 }), update: Update);
+
+static void AddPhysicsDebugGizmo(Scene rootScene)
+{
+    var debugGizmoEntity = new Entity("DebugGizmo")
+    {
+        new DebugRenderComponentScript(),
+        new CollidableGizmoScript()
+        {
+            Color = new Color4(0.4f, 0.843f, 0, 0.9f),
+            Visible = false
+        }
+    };
+
+    debugGizmoEntity.Scene = rootScene;
+}
 
 void Update(Scene scene, GameTime time)
 {
@@ -160,10 +181,22 @@ void Update(Scene scene, GameTime time)
     }
     else if (game.Input.IsKeyReleased(Keys.X))
     {
-        foreach (var entity in scene.Entities.Where(w => w.Name == ShapeName || w.Name == "Cube").ToList())
+        foreach (var entity in scene.Entities.Where(w => w.Name == ShapeName || w.Name == "Cube" || w.Name == "InstancedShapes" || w.Name == "VisualInstances" || w.Name == "InstancingMaster").ToList())
         {
             entity.Remove();
         }
+
+        SetCubeCount(scene);
+    }
+    else if (game.Input.IsKeyPressed(Keys.I))
+    {
+        AddInstancedShapes(Primitive2DModelType.Square, 100);
+
+        SetCubeCount(scene);
+    }
+    else if (game.Input.IsKeyPressed(Keys.O))
+    {
+        AddVisualOnlyInstancing(Primitive2DModelType.Square, 1000);
 
         SetCubeCount(scene);
     }
@@ -187,6 +220,10 @@ void RenderNavigation()
     game.DebugTextSystem.Print($"T - Generate 2D triangles", new Int2(x: debugX, y: debugY + space));
     space += 20;
     game.DebugTextSystem.Print($"P - Generate random 2D shapes", new Int2(x: debugX, y: debugY + space));
+    space += 20;
+    game.DebugTextSystem.Print($"I - Generate 100 instances (physics + instancing!)", new Int2(x: debugX, y: debugY + space), Color.Yellow);
+    space += 20;
+    game.DebugTextSystem.Print($"O - Generate 1000 visual-only instanced shapes", new Int2(x: debugX, y: debugY + space), Color.Cyan);
 }
 
 void ProcessRaycast(MouseButton mouseButton, Vector2 screenPosition)
@@ -330,6 +367,100 @@ void Add3DShapes(PrimitiveModelType? type = null, int count = 5)
     }
 }
 
+void AddInstancedShapes(Primitive2DModelType type, int count)
+{
+    var shapeModel = Get2DShape(type);
+
+    if (shapeModel == null) return;
+
+    // BEPU SAMPLE APPROACH: Master-Instance Pattern
+    // This achieves BOTH individual physics AND instanced rendering optimization!
+    //
+    // Step 1: Create a master InstancingComponent entity
+    var masterEntity = new Entity("InstancingMaster");
+    var masterInstancing = masterEntity.GetOrCreate<InstancingComponent>();
+    masterInstancing.Type = new InstancingEntityTransform(); // This tracks all instances
+    masterEntity.Scene = scene;
+
+    // Step 2: Create a template entity with InstanceComponent
+    var templateEntity = game.Create2DPrimitive(shapeModel.Type,
+        new Bepu2DPhysicsOptions()
+        {
+            Size = shapeModel.Size,
+            Depth = Depth,
+            Material = game.CreateFlatMaterial(shapeModel.Color),
+        });
+    templateEntity.Name = "InstancedShapes";
+
+    // Add InstanceComponent that will link to the master
+    var instanceComponent = new InstanceComponent();
+    templateEntity.Add(instanceComponent);
+    instanceComponent.Master = masterInstancing; // Link to master!
+
+    // Step 3: Create a prefab from the template
+    var prefab = new Prefab();
+    prefab.Entities.Add(templateEntity);
+
+    // Step 4: Instantiate (clone) from the prefab
+    for (int i = 0; i < count; i++)
+    {
+        var entities = prefab.Instantiate();
+        var entity = entities.First();
+
+        entity.Transform.Position = GetRandomPosition();
+        entity.Scene = scene;
+
+        // Each cloned entity has its own InstanceComponent that references the master
+        // This allows individual physics while the rendering system batches them!
+    }
+}
+
+void AddVisualOnlyInstancing(Primitive2DModelType type, int count)
+{
+    var shapeModel = Get2DShape(type);
+
+    if (shapeModel == null) return;
+
+    // TRUE GPU INSTANCING: One entity, one mesh, one draw call for all instances.
+    // This is the optimal way to render many copies of the same object.
+    // Perfect for: static decorations, particles, grass, rocks, trees, etc.
+    // Limitation: No individual physics - these are visual-only.
+
+    var entity = game.Create2DPrimitive(shapeModel.Type,
+        new()
+        {
+            Size = shapeModel.Size,
+            Depth = Depth,
+            Material = game.CreateFlatMaterial(shapeModel.Color),
+        });
+
+    entity.Name = "VisualInstances";
+
+    // Create transformation matrices for all instances
+    Matrix[] instanceMatrices = new Matrix[count];
+
+    for (int i = 0; i < count; i++)
+    {
+        // Spread them in a wider area and at various heights to show scale
+        var position = new Vector3(
+            Random.Shared.Next(-15, 15),
+            Random.Shared.Next(5, 40),
+            Random.Shared.NextSingle() * 0.5f - 0.25f
+        );
+        var rotation = Quaternion.RotationZ(Random.Shared.NextSingle() * MathF.PI * 2);
+        var scale = Vector3.One * (0.3f + Random.Shared.NextSingle() * 0.8f);
+
+        instanceMatrices[i] = Matrix.Scaling(scale) * Matrix.RotationQuaternion(rotation) * Matrix.Translation(position);
+    }
+
+    // Add instancing component - this is where the GPU instancing magic happens
+    var instancingComponent = entity.GetOrCreate<InstancingComponent>();
+    instancingComponent.Type = new InstancingUserArray();
+    ((InstancingUserArray)instancingComponent.Type).UpdateWorldMatrices(instanceMatrices);
+
+    entity.Scene = scene;
+}
+
 Shape2DModel? Get2DShape(Primitive2DModelType? type = null)
 {
     if (type == null)
@@ -354,7 +485,24 @@ Shape3DModel? Get3DShape(PrimitiveModelType? type = null)
     return _3DShapes.Find(x => x.Type == type);
 }
 
-void SetCubeCount(Scene scene) => cubes = scene.Entities.Where(w => w.Name == ShapeName || w.Name == "Cube").Count();
+void SetCubeCount(Scene scene)
+{
+    var regularShapes = scene.Entities.Where(w => w.Name == ShapeName || w.Name == "Cube").Count();
+    var physicsInstances = scene.Entities.Where(w => w.Name == "InstancedShapes").Count();
+    var visualInstances = scene.Entities.Where(w => w.Name == "VisualInstances").ToList();
+
+    var visualInstanceCount = 0;
+    foreach (var entity in visualInstances)
+    {
+        var instancingComponent = entity.Get<InstancingComponent>();
+        if (instancingComponent?.Type is InstancingUserArray userArray)
+        {
+            visualInstanceCount += userArray.InstanceCount;
+        }
+    }
+
+    cubes = regularShapes + physicsInstances + visualInstanceCount;
+}
 
 static Vector3 GetRandomPosition() => new(Random.Shared.Next(-5, 5), Random.Shared.Next(10, 30), 0);
 

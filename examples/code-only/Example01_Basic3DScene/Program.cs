@@ -45,6 +45,7 @@ related:
   - Example01_Material
 tags:
   - 3D
+  - Bepu
   - Shapes
   - Primitive
   - Capsule
