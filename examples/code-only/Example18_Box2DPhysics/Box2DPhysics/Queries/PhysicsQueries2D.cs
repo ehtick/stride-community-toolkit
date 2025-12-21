@@ -56,7 +56,7 @@ public static partial class PhysicsQueries2D
 
         B2BodyId? hit = null;
 
-        b2World_OverlapAABB(worldId, box, b2DefaultQueryFilter(), (shapeId, userData) =>
+        b2World_OverlapAABB(worldId, box, b2DefaultQueryFilter(), (in shapeId, userData) =>
         {
             var bodyId = b2Shape_GetBody(shapeId);
 
@@ -87,7 +87,7 @@ public static partial class PhysicsQueries2D
         var start = new Box2D.NET.B2Vec2(origin.X, origin.Y);
         var translation = new Box2D.NET.B2Vec2(direction.X * maxDistance, direction.Y * maxDistance);
 
-        b2World_CastRay(worldId, start, translation, b2DefaultQueryFilter(), (shapeId, point, normal, fraction, userData) =>
+        b2World_CastRay(worldId, start, translation, b2DefaultQueryFilter(), (in shapeId, point, normal, fraction, userData) =>
         {
             var bodyId = b2Shape_GetBody(shapeId);
             hits.Add(new QueryRaycastHit(
@@ -118,7 +118,7 @@ public static partial class PhysicsQueries2D
             upperBound = new Box2D.NET.B2Vec2(upperBound.X, upperBound.Y)
         };
 
-        b2World_OverlapAABB(worldId, box, b2DefaultQueryFilter(), (shapeId, userData) =>
+        b2World_OverlapAABB(worldId, box, b2DefaultQueryFilter(), (in shapeId, userData) =>
         {
             var bodyId = b2Shape_GetBody(shapeId);
             if (!bodies.Contains(bodyId))
@@ -144,7 +144,7 @@ public static partial class PhysicsQueries2D
         var circle = new B2Circle(new Box2D.NET.B2Vec2(center.X, center.Y), radius);
         var proxy = b2MakeProxy(circle.center, 1, circle.radius);
 
-        b2World_OverlapShape(worldId, ref proxy, b2DefaultQueryFilter(), (shapeId, userData) =>
+        b2World_OverlapShape(worldId, ref proxy, b2DefaultQueryFilter(), (in shapeId, userData) =>
         {
             var bodyId = b2Shape_GetBody(shapeId);
             if (!bodies.Contains(bodyId))
