@@ -27,8 +27,8 @@ public static partial class PhysicsQueries2D
     public static (bool hit, B2BodyId bodyId, B2ShapeId shapeId, Vector2 point, Vector2 normal, float fraction) RaycastClosest(
         B2WorldId worldId, Vector2 origin, Vector2 direction, float maxDistance)
     {
-        var start = new Box2D.NET.B2Vec2(origin.X, origin.Y);
-        var translation = new Box2D.NET.B2Vec2(direction.X * maxDistance, direction.Y * maxDistance);
+        var start = new B2Vec2(origin.X, origin.Y);
+        var translation = new B2Vec2(direction.X * maxDistance, direction.Y * maxDistance);
         var result = b2World_CastRayClosest(worldId, start, translation, b2DefaultQueryFilter());
 
         if (!result.hit)
@@ -50,17 +50,17 @@ public static partial class PhysicsQueries2D
     /// <returns>The first body id whose shape actually contains the point; null if none.</returns>
     public static B2BodyId? OverlapPoint(B2WorldId worldId, Vector2 point, float querySize = 0.1f)
     {
-        var lower = new Box2D.NET.B2Vec2(point.X - querySize, point.Y - querySize);
-        var upper = new Box2D.NET.B2Vec2(point.X + querySize, point.Y + querySize);
-        var box = new Box2D.NET.B2AABB { lowerBound = lower, upperBound = upper };
+        var lower = new B2Vec2(point.X - querySize, point.Y - querySize);
+        var upper = new B2Vec2(point.X + querySize, point.Y + querySize);
+        var box = new B2AABB { lowerBound = lower, upperBound = upper };
 
         B2BodyId? hit = null;
 
-        b2World_OverlapAABB(worldId, box, b2DefaultQueryFilter(), (in shapeId, userData) =>
+        b2World_OverlapAABB(worldId, box, b2DefaultQueryFilter(), (shapeId, userData) =>
         {
             var bodyId = b2Shape_GetBody(shapeId);
 
-            if (b2Shape_TestPoint(shapeId, new Box2D.NET.B2Vec2(point.X, point.Y)))
+            if (b2Shape_TestPoint(shapeId, new B2Vec2(point.X, point.Y)))
             {
                 hit = bodyId;
                 return false;
@@ -84,10 +84,10 @@ public static partial class PhysicsQueries2D
     public static List<QueryRaycastHit> RaycastAll(B2WorldId worldId, Vector2 origin, Vector2 direction, float maxDistance)
     {
         var hits = new List<QueryRaycastHit>();
-        var start = new Box2D.NET.B2Vec2(origin.X, origin.Y);
-        var translation = new Box2D.NET.B2Vec2(direction.X * maxDistance, direction.Y * maxDistance);
+        var start = new B2Vec2(origin.X, origin.Y);
+        var translation = new B2Vec2(direction.X * maxDistance, direction.Y * maxDistance);
 
-        b2World_CastRay(worldId, start, translation, b2DefaultQueryFilter(), (in shapeId, point, normal, fraction, userData) =>
+        b2World_CastRay(worldId, start, translation, b2DefaultQueryFilter(), (shapeId, point, normal, fraction, userData) =>
         {
             var bodyId = b2Shape_GetBody(shapeId);
             hits.Add(new QueryRaycastHit(
@@ -112,13 +112,13 @@ public static partial class PhysicsQueries2D
     public static List<B2BodyId> OverlapAABB(B2WorldId worldId, Vector2 lowerBound, Vector2 upperBound)
     {
         var bodies = new List<B2BodyId>();
-        var box = new Box2D.NET.B2AABB
+        var box = new B2AABB
         {
-            lowerBound = new Box2D.NET.B2Vec2(lowerBound.X, lowerBound.Y),
-            upperBound = new Box2D.NET.B2Vec2(upperBound.X, upperBound.Y)
+            lowerBound = new B2Vec2(lowerBound.X, lowerBound.Y),
+            upperBound = new B2Vec2(upperBound.X, upperBound.Y)
         };
 
-        b2World_OverlapAABB(worldId, box, b2DefaultQueryFilter(), (in shapeId, userData) =>
+        b2World_OverlapAABB(worldId, box, b2DefaultQueryFilter(), (shapeId, userData) =>
         {
             var bodyId = b2Shape_GetBody(shapeId);
             if (!bodies.Contains(bodyId))
@@ -141,10 +141,10 @@ public static partial class PhysicsQueries2D
     public static List<B2BodyId> OverlapCircle(B2WorldId worldId, Vector2 center, float radius)
     {
         var bodies = new List<B2BodyId>();
-        var circle = new B2Circle(new Box2D.NET.B2Vec2(center.X, center.Y), radius);
+        var circle = new B2Circle(new B2Vec2(center.X, center.Y), radius);
         var proxy = b2MakeProxy(circle.center, 1, circle.radius);
 
-        b2World_OverlapShape(worldId, ref proxy, b2DefaultQueryFilter(), (in shapeId, userData) =>
+        b2World_OverlapShape(worldId, ref proxy, b2DefaultQueryFilter(), (shapeId, userData) =>
         {
             var bodyId = b2Shape_GetBody(shapeId);
             if (!bodies.Contains(bodyId))

@@ -14,7 +14,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\src\Stride.CommunityToolkit.Bepu\Stride.CommunityToolkit.Bepu.csproj" />
-        <ProjectReference Include="..\..\..\src\Stride.CommunityToolkit.ImGui\Stride.CommunityToolkit.ImGui.csproj" />
         <ProjectReference Include="..\..\..\src\Stride.CommunityToolkit.Skyboxes\Stride.CommunityToolkit.Skyboxes.csproj" />
     </ItemGroup>
 
