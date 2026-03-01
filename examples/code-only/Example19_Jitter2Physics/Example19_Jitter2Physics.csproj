@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Jitter2" Version="2.7.6" />
+        <PackageReference Include="Jitter2" Version="2.7.9" />
     </ItemGroup>
 
     <ItemGroup>

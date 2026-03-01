@@ -161,5 +161,48 @@
     "isDraft": false,
     "projectName": "Example01_Basic3DScene",
     "projectPath": "Example01_Basic3DScene\\Program.cs"
+  },
+  {
+    "title": {
+      "en": "Jitter2 Physics Integration",
+      "cs": "Integrace fyziky Jitter2"
+    },
+    "level": "Beginners",
+    "category": "Physics",
+    "complexity": 4,
+    "description": {
+      "en": "Demonstrates integrating Jitter2 physics engine with Stride. Shows how to create a physics world,\nsynchronize physics bodies with visual entities, and simulate dynamic rigid body interactions.\nFeatures 150 falling cubes with proper collision detection and a static ground plane.\n",
+      "cs": "Ukazuje integraci fyzik\u00E1ln\u00EDho enginu Jitter2 se Stride. Jak vytvo\u0159it fyzik\u00E1ln\u00ED sv\u011Bt,\nsynchronizovat fyzik\u00E1ln\u00ED t\u011Blesa s vizu\u00E1ln\u00EDmi entitami a simulovat dynamick\u00E9 interakce pevn\u00FDch t\u011Bles.\nObsahuje 150 padaj\u00EDc\u00EDch kostek s detekc\u00ED koliz\u00ED a statickou zemn\u00ED rovinou.\n"
+    },
+    "concepts": [
+      "Integrating external physics engine (Jitter2)",
+      "Creating and managing physics world",
+      "Synchronizing physics bodies with visual entities",
+      "Dynamic rigid body simulation",
+      "Static vs dynamic physics bodies",
+      "Manual physics update loop"
+    ],
+    "related": [
+      "Example01_Basic3DScene",
+      "Example18_Box2DPhysics",
+      "Example_CubicleCalamity"
+    ],
+    "tags": [
+      "3D",
+      "Physics",
+      "Jitter2",
+      "Rigid Body",
+      "Collision Detection",
+      "External Engine",
+      "Simulation",
+      "Cubes",
+      "Beginners"
+    ],
+    "order": 19,
+    "enabled": true,
+    "created": "2025-12-13",
+    "isDraft": false,
+    "projectName": "Example19_Jitter2Physics",
+    "projectPath": "Example19_Jitter2Physics\\Program.cs"
   }
 ]
