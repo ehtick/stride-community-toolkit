@@ -18,12 +18,12 @@ public class ImGuiExtension
     /// </summary>
     /// <param name="texture"></param>
     /// <returns></returns>
-    internal static ulong GetTextureKey(Texture texture)
+    internal static ImTextureRef GetTextureKey(Texture texture)
     {
         _textureRegistry.Add(texture);
         ulong id = (ulong)_textureRegistry.Count;
 
-        return id;
+        return new ImTextureRef { TexID = (ImTextureID)(nint)id };
     }
 
     /// <summary>
