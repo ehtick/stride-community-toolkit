@@ -129,10 +129,11 @@ public static class GameExtensions
     /// Adds a default graphics compositor with post-processing effects enabled to the specified game.
     /// </summary>
     /// <param name="game">The game to which the graphics compositor will be added. Cannot be null.</param>
+    /// <param name="clearColor">The color used to clear the screen. Defaults to <see cref="Color.CornflowerBlue"/> if not specified.</param>
     /// <returns>The newly created <see cref="GraphicsCompositor"/> with post-processing effects enabled.</returns>
-    public static GraphicsCompositor AddGraphicsCompositor(this Game game)
+    public static GraphicsCompositor AddGraphicsCompositor(this Game game, Color? clearColor = null)
     {
-        var graphicsCompositor = GraphicsCompositorHelper.CreateDefault(enablePostEffects: true);
+        var graphicsCompositor = GraphicsCompositorHelper.CreateDefault(enablePostEffects: true, clearColor: clearColor);
 
         game.SceneSystem.GraphicsCompositor = graphicsCompositor;
 
