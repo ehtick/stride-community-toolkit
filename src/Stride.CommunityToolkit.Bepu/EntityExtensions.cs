@@ -105,6 +105,7 @@ public static class EntityExtensions
             Primitive2DModelType.Square => size is null ? new BoxCollider() : new() { Size = new(size.Value.X, size.Value.X, depth) },
             Primitive2DModelType.Capsule => size is null ? new CapsuleCollider() : new() { Radius = size.Value.X, Length = size.Value.Y - 2 * size.Value.X },
             Primitive2DModelType.Circle => CreateCircleCollider(depth, size),
+            Primitive2DModelType.Polygon => PolygonCollider.Create(size?.X, size.HasValue ? (int)size.Value.Y : null, depth),
             _ => throw new InvalidOperationException($"Unsupported Primitive2DModelType: {type}"),
         };
 

@@ -21,11 +21,6 @@ public enum Primitive2DModelType
     Polygon,
 
     /// <summary>
-    /// A quadrilateral shape, which can represent any four-sided polygon.
-    /// </summary>
-    Quad,
-
-    /// <summary>
     /// A rectangular shape with customizable width and height.
     /// </summary>
     Rectangle,
