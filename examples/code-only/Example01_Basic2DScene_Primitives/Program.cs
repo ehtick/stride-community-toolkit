@@ -6,12 +6,22 @@ using Stride.Core.Mathematics;
 using Stride.Engine;
 
 var random = new Random(1);
-List<Primitive2DModelType> primitives = [
-    Primitive2DModelType.Circle,
-    Primitive2DModelType.Capsule,
-    Primitive2DModelType.Rectangle,
-    Primitive2DModelType.Square,
-    Primitive2DModelType.Triangle,
+var parallelogramVertices = new Vector2[]
+{
+    new(-0.5f, -0.25f),
+    new(0.5f, -0.25f),
+    new(0.75f, 0.25f),
+    new(-0.25f, 0.25f),
+};
+
+List<ShapeItem> shapes = [
+    new(Primitive2DModelType.Circle),
+    new(Primitive2DModelType.Capsule),
+    new(Primitive2DModelType.Rectangle),
+    new(Primitive2DModelType.Square),
+    new(Primitive2DModelType.Polygon),
+    new(Primitive2DModelType.Triangle),
+    new(Primitive2DModelType.Polygon, parallelogramVertices)
 ];
 
 using var game = new Game();
@@ -22,17 +32,20 @@ void Start(Scene rootScene)
 {
     game.SetupBase2DScene();
 
-    foreach (var (index, primitive) in primitives.Index())
+    foreach (var (index, shape) in shapes.Index())
     {
-        var entity = game.Create2DPrimitive(primitive, new()
+        var entity = game.Create2DPrimitive(shape.Type, new()
         {
             Material = game.CreateFlatMaterial(random.NextColor()),
+            Vertices = shape.Vertices,
         });
 
         entity.Transform.Position = new Vector3(0, 10 + index * 1.5f, 0);
         entity.Scene = rootScene;
     }
 }
+
+public record ShapeItem(Primitive2DModelType Type, Vector2[]? Vertices = null);
 
 /*
 ---example-metadata
@@ -50,7 +63,7 @@ description:
     Vytvoření minimální 2D scény pomocí nástrojů sady a umístění více různých primitivních tvarů.
     Ukazuje vytvoření entity, základní umístění a připojení entit k scéně.
 concepts:
-    - Creating multiple 2D primitives (Circle, Capsule, Rectangle, Square, Triangle)
+    - Creating multiple 2D primitives (Circle, Capsule, Rectangle, Square, Polygon, Triangle)
     - Positioning entities with Transform.Position
     - Adding entities to a Scene (rootScene)
     - "Using helpers: SetupBase2DScene"
