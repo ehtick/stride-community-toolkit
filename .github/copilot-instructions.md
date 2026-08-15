@@ -84,6 +84,33 @@ Two rules when editing these:
 - **`StrideVersion` is the single place the Stride version is set.** Reference it as
   `Version="$(StrideVersion)"` in a `PackageReference` rather than hard-coding a version.
 
+Solutions: `Stride.CommunityToolkit.slnx` contains everything; `Stride.CommunityToolkit.Core.slnf`
+is a solution filter loading only libraries, tests and tools, because the 56 example projects slow
+IDE load noticeably. See [Building the Toolkit](../docs/contributing/toolkit/building.md).
+
+## Build configuration lives outside the .csproj files
+
+> [!IMPORTANT]
+> Project files are deliberately sparse. If a `.csproj` appears to be missing `TargetFramework`,
+> `Nullable`, `ImplicitUsings`, a Stride version, or package metadata, that is not an oversight —
+> it is supplied by one of the files below. Check these before "fixing" a project file, and prefer
+> changing the shared file over adding a local override.
+
+| File | Applies to | Supplies |
+|---|---|---|
+| `Directory.Build.props` (root) | Every project in the repository | `TargetFramework` (net10.0), `ImplicitUsings`, `Nullable`, `StrideVersion` |
+| `src/CommonSettings.props` | Library projects, imported explicitly | Package metadata: version, licence, authors, icon, readme, SourceLink |
+| `examples/Directory.Build.props` | Example projects only | Host-only `RuntimeIdentifier`, `SelfContained`, output-path settings that keep the example build small |
+| `examples/Directory.Build.targets` | Example projects only | Strips package XML documentation from build output |
+
+Two rules when editing these:
+
+- **MSBuild imports only the *nearest* `Directory.Build.props` / `.targets`.** A nested file must
+  explicitly `Import` the one above it, or the parent's settings are silently lost. The files under
+  `examples/` do this; preserve it.
+- **`StrideVersion` is the single place the Stride version is set.** Reference it as
+  `Version="$(StrideVersion)"` in a `PackageReference` rather than hard-coding a version.
+
 ## Stride engine context (quick reminders)
 
 - ECS: Entities aggregate Components (Transform, Model, Camera, Rigidbody, Script, etc.).
