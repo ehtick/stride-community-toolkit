@@ -15,9 +15,9 @@ namespace Stride.CommunityToolkit.Bepu;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Two things keep a body in the plane. Rotation is locked at the source, by zeroing the X and Y
-/// terms of the inverse inertia tensor once when the body attaches, which makes the solver unable to
-/// rotate about those axes - there is nothing to correct afterwards. Position is kept on Z = 0 by a
+/// Two things keep a body in the plane. Rotation is locked at the source, by scaling down the X and Y
+/// terms of the inverse inertia tensor once when the body attaches, which leaves the solver able to
+/// rotate about those axes only by amounts too small to see. Position is kept on Z = 0 by a
 /// small velocity correction applied before each solve, so the solver resolves it together with
 /// every contact rather than having its result overwritten afterwards.
 /// </para>
@@ -34,8 +34,9 @@ namespace Stride.CommunityToolkit.Bepu;
 /// <para>
 /// This mirrors how every other engine confines a body to a plane: Stride's own Bullet integration
 /// sets <c>LinearFactor = (1,1,0)</c> and <c>AngularFactor = (0,0,1)</c> for 2D shapes, and Unity,
-/// Unreal and Godot all expose the same idea as per-axis freeze flags. Zeroing the inverse inertia
-/// is the angular factor, and clearing out-of-plane velocity each step is the linear one. Bepu has no
+/// Unreal and Godot all expose the same idea as per-axis freeze flags. Scaling down the inverse
+/// inertia is the angular factor, and clearing out-of-plane velocity each step is the linear one.
+/// Bepu has no
 /// linear factor to set, and the solver can still introduce Z velocity after this runs, which is what
 /// the small positional correction cleans up - the others get it for free inside the integrator.
 /// </para>
@@ -43,6 +44,12 @@ namespace Stride.CommunityToolkit.Bepu;
 /// Locking an axis prevents change; it does not undo what is already there. A body tilted about X or
 /// Y when it attaches keeps that tilt, frozen at that angle, exactly as a frozen rotation behaves in
 /// those other engines. Give bodies an identity or Z-only rotation if that is not wanted.
+/// </para>
+/// <para>
+/// The lock scales the out-of-plane inverse inertia rather than zeroing it, because zeroing only the
+/// X and Y terms and leaving Z responsive makes the contact solver diverge in dense piles - see
+/// <see cref="OutOfPlaneInertiaScale"/>. The residue this leaves is removed every step by the angular
+/// velocity clamp, so it never builds up.
 /// </para>
 /// <para>
 /// One thing to be aware of when using hull colliders: attaching one caps
@@ -86,6 +93,39 @@ public class Body2DComponent : BodyComponent, ISimulationUpdate
 
     /// <summary>One millimetre at Stride's default scale.</summary>
     private const float DefaultZTolerance = 0.001f;
+
+    /// <summary>
+    /// What the out-of-plane inverse inertia terms are scaled by, rather than being set to zero.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Setting them to zero is the obvious way to express "infinitely resistant to rotation about
+    /// this axis", and it is what every engine's freeze-rotation flag amounts to. In a dense pile of
+    /// triangular prisms it also kills the process: the solve diverges, bodies are flung far enough
+    /// to make the broad-phase bounds meaningless, the pair count runs away and the narrow phase
+    /// allocates until there is no memory left - tens of gigabytes within seconds.
+    /// </para>
+    /// <para>
+    /// What matters is that only <i>some</i> terms are zeroed. Measured over three runs each at
+    /// 20,000 bodies: a full tensor never fails, a tensor with every term zeroed never fails - that
+    /// is the idiom Bepu's own character demo uses, and it means "no torque can rotate this" - but
+    /// zeroing X and Y while leaving Z responsive fails every time. A partly-zeroed tensor is the
+    /// degenerate case, not a zeroed one.
+    /// </para>
+    /// <para>
+    /// Scaling instead of zeroing keeps every term non-zero while leaving the body four orders of
+    /// magnitude harder to rotate out of plane than within it, which is indistinguishable from
+    /// locked. Anything that does leak through is removed by the angular velocity clamp in
+    /// <see cref="SimulationUpdate"/> on the same step, so it cannot accumulate. Measured over 20
+    /// runs at 8,000 and 20,000 bodies: no runaway, no increase in bodies squeezed out of the pile,
+    /// and a pile that settles where the zeroed version kept churning.
+    /// </para>
+    /// <para>
+    /// Why a partly-zeroed tensor misbehaves is not established. The evidence here is empirical, and
+    /// the underlying behaviour may be worth reporting to Bepu rather than only working around.
+    /// </para>
+    /// </remarks>
+    private const float OutOfPlaneInertiaScale = 1e-4f;
 
     /// <summary>
     /// Tracks the kinematic state the rotation lock was applied for, so it can be restored when the
@@ -209,15 +249,17 @@ public class Body2DComponent : BodyComponent, ISimulationUpdate
     public virtual void AfterSimulationUpdate(BepuSimulation sim, float simTimeStep) { }
 
     /// <summary>
-    /// Removes the body's ability to rotate about X and Y, leaving Z free.
+    /// Removes the body's ability to rotate about X and Y for all practical purposes, leaving Z free.
     /// </summary>
     private void ApplyRotationLock()
     {
         var inertia = BodyInertia;
         var inverseInertia = inertia.InverseInertiaTensor;
 
-        inverseInertia.XX = 0f;
-        inverseInertia.YY = 0f;
+        // Scaled rather than zeroed, and the off-diagonals dropped, which leaves a diagonal tensor
+        // with positive entries - still invertible. See OutOfPlaneInertiaScale for why that matters.
+        inverseInertia.XX *= OutOfPlaneInertiaScale;
+        inverseInertia.YY *= OutOfPlaneInertiaScale;
         inverseInertia.YX = 0f;
         inverseInertia.ZX = 0f;
         inverseInertia.ZY = 0f; // ZZ is left alone, so the body can still roll in the plane
